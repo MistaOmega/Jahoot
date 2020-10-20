@@ -4,13 +4,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class JahootServer {
     private final int port;
-    private Set<String> Usernames = new HashSet<>(); // hashset of all usernames
-    private Set<ClientHandler> Clients = new HashSet<>(); // hashset of all clients
-    private boolean waitingForPlayers = true;
+    private final Set<String> Usernames = new HashSet<>(); // hashset of all usernames
+    private final Set<ClientHandler> Clients = new HashSet<>(); // hashset of all clients
+    private List<Question> Questions;
     public JahootServer(int port){
         this.port = port;
     }
@@ -62,9 +63,9 @@ public class JahootServer {
         }
     }
 
-    public void sendQuestion(String Question){
+    public void sendQuestion(Question Question){
         for(ClientHandler clientHandler : Clients){
-            clientHandler.printQuestion(Question);
+            clientHandler.printQuestion(Question.toString());
         }
     }
 

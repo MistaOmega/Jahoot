@@ -23,12 +23,13 @@ public class ClientHandler extends Thread {
     public void run() {
         super.run();
 
-        try{
-            while(!readyToPlay) {
+        try {
+            while (!readyToPlay) {
                 InputStream inputStream = socket.getInputStream();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
                 OutputStream socketOutputStream = socket.getOutputStream();
+                writer = new PrintWriter(socketOutputStream, true);
                 String username = reader.readLine();
                 jahootServer.addUserName(username);
 
@@ -36,7 +37,7 @@ public class ClientHandler extends Thread {
                 jahootServer.broadcast(serverMessage, this);
             }
 
-            while(true){
+            while (true) {
                 System.out.println(readyToPlay);
             }
 
@@ -59,7 +60,7 @@ public class ClientHandler extends Thread {
         }
     }
 
-    void printQuestion(String Question){
+    void printQuestion(String Question) {
         writer.println("Question");
 
     }

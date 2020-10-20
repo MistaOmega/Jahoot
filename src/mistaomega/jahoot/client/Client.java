@@ -1,42 +1,17 @@
 package mistaomega.jahoot.client;
 
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class Client {
-    private String hostname;
-    private int port;
+    private final String hostname;
+    private final int port;
     private String Username;
 
-    public Client(String hostname, int port){
+    public Client(String hostname, int port) {
         this.hostname = hostname;
         this.port = port;
     }
-
-    public void run(){
-        try {
-            Socket socket = new Socket(hostname, port);
-
-            System.out.println("Connected to the chat server");
-
-            new ReadThread(socket, this).start();
-            new WriteThread(socket, this).start();
-
-        } catch (UnknownHostException ex) {
-            System.out.println("Server not found: " + ex.getMessage());
-        } catch (IOException ex) {
-            System.out.println("I/O Error: " + ex.getMessage());
-        }
-    }
-    void setUserName(String userName) {
-        this.Username = userName;
-    }
-
-    String getUserName() {
-        return this.Username;
-    }
-
 
     public static void main(String[] args) {
         if (args.length < 2) return;
@@ -46,6 +21,36 @@ public class Client {
 
         Client client = new Client(hostname, port);
         client.run();
+    }
+
+    public void run() {
+        try {
+
+            System.out.println("Connecting to " + hostname + " on port " + port);
+            Socket client = new Socket(hostname, port);
+
+            System.out.println("Just connected to " + client.getRemoteSocketAddress());
+            OutputStream outToServer = client.getOutputStream();
+            DataOutputStream out = new DataOutputStream(outToServer);
+
+            out.writeUTF("Hello from " + client.getLocalSocketAddress());
+            out.flush();
+
+            InputStream inFromServer = client.getInputStream();
+            DataInputStream in = new DataInputStream(inFromServer);
+
+            System.out.println("Server says " + in.readUTF());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    String getUserName() {
+        return this.Username;
+    }
+
+    void setUserName(String userName) {
+        this.Username = userName;
     }
 
 }

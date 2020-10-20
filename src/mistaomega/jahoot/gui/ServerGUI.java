@@ -3,20 +3,18 @@ package mistaomega.jahoot.gui;
 import mistaomega.jahoot.server.JahootServer;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ServerGUI {
+    private static JahootServer jahootServer;
     private JList Users;
     private JPanel mainPanel;
     private JButton ready;
-    private static JahootServer jahootServer;
 
     public ServerGUI() {
         ready.addActionListener(e -> jahootServer.setReadyToPlay(true));
     }
 
-    public static void main(String[] args){
+    public void run() {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Server GUI");
             frame.setContentPane(new ServerGUI().mainPanel);
@@ -27,8 +25,6 @@ public class ServerGUI {
         jahootServer = new JahootServer(5000);
         jahootServer.run();
     }
-
-
 
 
 }
