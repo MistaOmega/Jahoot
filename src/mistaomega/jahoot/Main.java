@@ -35,13 +35,13 @@ public class Main {
                 options[0]); //default button title
         System.out.println(n);
 
-        switch(n){
-            case 0:
-                QuestionsUI questionsUI = new QuestionsUI();
-                questionsUI.run();
-            case 1:
-                ServerGUI serverGUI = new ServerGUI();
-                serverGUI.run();
+        if (n == 0) {
+            QuestionsUI questionsUI = new QuestionsUI();
+            questionsUI.run();
+        } else {
+            ServerGUI serverGUI = new ServerGUI();
+            serverGUI.run();
         }
+
     }
 }
