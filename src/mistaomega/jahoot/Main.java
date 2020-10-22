@@ -30,9 +30,9 @@ public class Main {
                 "Setup",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
-                null,     //do not use a custom Icon
-                options,  //the titles of buttons
-                options[0]); //default button title
+                null,
+                options,  // Button titles
+                options[0]); // default button title
         System.out.println(n);
 
         if (n == 0) {

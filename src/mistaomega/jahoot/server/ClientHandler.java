@@ -8,44 +8,41 @@ import java.net.Socket;
  */
 public class ClientHandler extends Thread {
 
+    private DataOutputStream out;
+    private DataInputStream in;
     private final Socket socket;
     private final JahootServer jahootServer;
     private PrintWriter writer;
     private boolean readyToPlay = false;
 
 
-    public ClientHandler(Socket socket, JahootServer jahootServer) {
+    public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out) {
         this.socket = socket;
         this.jahootServer = jahootServer;
+        this.in = in;
+        this.out = out;
     }
 
     @Override
     public void run() {
         super.run();
-
-        try {
-            while (!readyToPlay) {
-                InputStream inputStream = socket.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                OutputStream socketOutputStream = socket.getOutputStream();
-                writer = new PrintWriter(socketOutputStream, true);
-                String username = reader.readLine();
-                jahootServer.addUserName(username);
-
-                String serverMessage = "New user connected: " + username;
-                jahootServer.broadcast(serverMessage, this);
+        while(true) {
+            try {
+                requestChecker();
+                Thread.sleep(1000);
+            } catch (IOException | InterruptedException ignored) {
             }
-
-            while (true) {
-                System.out.println(readyToPlay);
-            }
-
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+    }
 
+    public void requestChecker() throws IOException {
+        String received;
+        received = in.readUTF();
+        if (received.charAt(0) == 'u'){
+            System.out.println("Username attempt");
+            jahootServer.addUserName(received.substring(1));
+            System.out.println(jahootServer.getUsernames());
+        }
     }
 
     public void setReadyToPlay(boolean readyToPlay) {

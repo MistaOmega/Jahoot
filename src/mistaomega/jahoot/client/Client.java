@@ -8,9 +8,10 @@ public class Client {
     private final int port;
     private String Username;
 
-    public Client(String hostname, int port) {
+    public Client(String hostname, int port, String Username) {
         this.hostname = hostname;
         this.port = port;
+        this.Username = Username;
     }
 
     public static void main(String[] args) {
@@ -18,8 +19,9 @@ public class Client {
 
         String hostname = args[0];
         int port = Integer.parseInt(args[1]);
+        String username = args[2];
 
-        Client client = new Client(hostname, port);
+        Client client = new Client(hostname, port, username);
         client.run();
     }
 
@@ -32,8 +34,7 @@ public class Client {
             System.out.println("Just connected to " + client.getRemoteSocketAddress());
             OutputStream outToServer = client.getOutputStream();
             DataOutputStream out = new DataOutputStream(outToServer);
-
-            out.writeUTF("Hello from " + client.getLocalSocketAddress());
+            out.writeUTF("u"+Username);
             out.flush();
 
             InputStream inFromServer = client.getInputStream();

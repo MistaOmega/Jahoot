@@ -1,5 +1,7 @@
 package mistaomega.jahoot.server;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -8,30 +10,70 @@ import java.util.List;
 import java.util.Set;
 
 public class JahootServer {
+    private boolean isAcceptingConnections = true;
+    private Socket socket;
+    private ServerSocket serverSocket = null;
     private final int port;
     private final Set<String> Usernames = new HashSet<>(); // hashset of all usernames
     private final Set<ClientHandler> Clients = new HashSet<>(); // hashset of all clients
     private List<Question> Questions;
+
+    protected Thread RunningThread = null;
+
     public JahootServer(int port){
         this.port = port;
     }
 
     public void run(){
-        try(ServerSocket serverSocket = new ServerSocket(port)){
-            System.out.println("Server listening on port " + port);
-            while (true) {
-                Socket socket = serverSocket.accept(); // waits here for connection.
-                System.out.println("New user connected");
+        synchronized (this){
+            this.RunningThread = Thread.currentThread();
+        }
+        openServerConnections();
+        System.out.println("Server listening on port " + port);
+        while (isAcceptingConnections) {
+            try{
+                socket = serverSocket.accept();
+                System.out.println("Just connected to " + socket.getRemoteSocketAddress());
+                DataInputStream in = new DataInputStream(socket.getInputStream());
+                DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                out.writeUTF("Thank you for connecting to "+ socket.getLocalSocketAddress());
+                out.flush();
 
-                ClientHandler newUser = new ClientHandler(socket, this);
+                ClientHandler newUser = new ClientHandler(socket, this, in, out);
                 Clients.add(newUser);
                 newUser.start();
 
+            } catch (IOException e) {
+                if(!isAcceptingConnections) {
+                    System.out.println("Server no longer accepting connection.") ;
+                    return;
+                }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+
         }
 
+    }
+
+    public void setAcceptingConnections(boolean acceptingConnections) {
+        isAcceptingConnections = acceptingConnections;
+    }
+
+    public synchronized void stop(){
+        this.isAcceptingConnections = false;
+        try {
+            this.serverSocket.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Error closing server", e);
+        }
+    }
+
+    private void openServerConnections() {
+        try {
+            this.serverSocket = new ServerSocket(this.port);
+            serverSocket.setSoTimeout(5000);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot open port " + port, e);
+        }
     }
 
     public void setReadyToPlay(boolean readyToPlay) {
