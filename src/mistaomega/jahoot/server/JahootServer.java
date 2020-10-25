@@ -10,33 +10,32 @@ import java.util.List;
 import java.util.Set;
 
 public class JahootServer {
-    private boolean isAcceptingConnections = true;
-    private Socket socket;
-    private ServerSocket serverSocket = null;
     private final int port;
     private final Set<String> Usernames = new HashSet<>(); // hashset of all usernames
     private final Set<ClientHandler> Clients = new HashSet<>(); // hashset of all clients
+    protected Thread RunningThread = null;
+    private boolean isAcceptingConnections = true;
+    private Socket socket;
+    private ServerSocket serverSocket = null;
     private List<Question> Questions;
 
-    protected Thread RunningThread = null;
-
-    public JahootServer(int port){
+    public JahootServer(int port) {
         this.port = port;
     }
 
-    public void run(){
-        synchronized (this){
+    public void run() {
+        synchronized (this) {
             this.RunningThread = Thread.currentThread();
         }
         openServerConnections();
         System.out.println("Server listening on port " + port);
         while (isAcceptingConnections) {
-            try{
+            try {
                 socket = serverSocket.accept();
                 System.out.println("Just connected to " + socket.getRemoteSocketAddress());
                 DataInputStream in = new DataInputStream(socket.getInputStream());
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                out.writeUTF("Thank you for connecting to "+ socket.getLocalSocketAddress());
+                out.writeUTF("Thank you for connecting to " + socket.getLocalSocketAddress());
                 out.flush();
 
                 ClientHandler newUser = new ClientHandler(socket, this, in, out);
@@ -44,8 +43,8 @@ public class JahootServer {
                 newUser.start();
 
             } catch (IOException e) {
-                if(!isAcceptingConnections) {
-                    System.out.println("Server no longer accepting connection.") ;
+                if (!isAcceptingConnections) {
+                    System.out.println("Server no longer accepting connection.");
                     return;
                 }
             }
@@ -58,7 +57,7 @@ public class JahootServer {
         isAcceptingConnections = acceptingConnections;
     }
 
-    public synchronized void stop(){
+    public synchronized void stop() {
         this.isAcceptingConnections = false;
         try {
             this.serverSocket.close();
@@ -84,9 +83,10 @@ public class JahootServer {
 
     /**
      * Broadcast message to all clients
+     *
      * @param message what to broadcast
      */
-    public void broadcast(String message){
+    public void broadcast(String message) {
         for (ClientHandler client : Clients) {
             client.sendMessage(message);
         }
@@ -94,10 +94,11 @@ public class JahootServer {
 
     /**
      * Broadcast message to all clients
+     *
      * @param message what to broadcast
      * @param exclude this is a ClientHandler that is used to exclude a user
      */
-    public void broadcast(String message, ClientHandler exclude){
+    public void broadcast(String message, ClientHandler exclude) {
         for (ClientHandler client : Clients) {
             if (client != exclude) {
                 client.sendMessage(message);
@@ -105,14 +106,15 @@ public class JahootServer {
         }
     }
 
-    public void sendQuestion(Question Question){
-        for(ClientHandler clientHandler : Clients){
+    public void sendQuestion(Question Question) {
+        for (ClientHandler clientHandler : Clients) {
             clientHandler.printQuestion(Question.toString());
         }
     }
 
     /**
      * Add username to the usernames list
+     *
      * @param Username username to add
      */
     public void addUserName(String Username) {
@@ -131,7 +133,7 @@ public class JahootServer {
         return Usernames;
     }
 
-    public boolean isOtherUserConnected(){
+    public boolean isOtherUserConnected() {
         return !this.Usernames.isEmpty();
     }
 }

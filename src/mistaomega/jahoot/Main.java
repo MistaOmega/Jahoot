@@ -1,5 +1,6 @@
 package mistaomega.jahoot;
 
+import mistaomega.jahoot.gui.ClientConnectUI;
 import mistaomega.jahoot.gui.QuestionsUI;
 import mistaomega.jahoot.gui.ServerGUI;
 
@@ -24,9 +25,10 @@ public class Main {
         setLookAndFeel();
 
         Object[] options = {"Create Questions",
+                "Run Client",
                 "Run Server"};
         int n = JOptionPane.showOptionDialog(frame,
-                "Would you to create a question bank, or run the server?",
+                "Would you to create a question bank, run the client or host the server?",
                 "Setup",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
@@ -35,12 +37,19 @@ public class Main {
                 options[0]); // default button title
         System.out.println(n);
 
-        if (n == 0) {
-            QuestionsUI questionsUI = new QuestionsUI();
-            questionsUI.run();
-        } else {
-            ServerGUI serverGUI = new ServerGUI();
-            serverGUI.run();
+        switch (n) {
+            case 0:
+                QuestionsUI questionsUI = new QuestionsUI();
+                questionsUI.run();
+                break;
+            case 1:
+                ClientConnectUI clientConnectUI = new ClientConnectUI();
+                clientConnectUI.run();
+                break;
+            default:
+                ServerGUI serverGUI = new ServerGUI();
+                serverGUI.run();
+                break;
         }
 
     }

@@ -19,6 +19,7 @@ public class QuestionsUI {
     private JButton btnAddQuestion;
     private JButton btnSubmitQuestions;
     private JList lstQuestions;
+    private JScrollPane scrollList;
 
     private final ArrayList<Question> Questions = new ArrayList<>();
 

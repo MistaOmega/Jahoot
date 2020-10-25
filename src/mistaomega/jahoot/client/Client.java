@@ -21,8 +21,7 @@ public class Client {
         int port = Integer.parseInt(args[1]);
         String username = args[2];
 
-        Client client = new Client(hostname, port, username);
-        client.run();
+
     }
 
     public void run() {
@@ -34,8 +33,9 @@ public class Client {
             System.out.println("Just connected to " + client.getRemoteSocketAddress());
             OutputStream outToServer = client.getOutputStream();
             DataOutputStream out = new DataOutputStream(outToServer);
-            out.writeUTF("u"+Username);
+            out.writeUTF("u" + Username);
             out.flush();
+
 
             InputStream inFromServer = client.getInputStream();
             DataInputStream in = new DataInputStream(inFromServer);
