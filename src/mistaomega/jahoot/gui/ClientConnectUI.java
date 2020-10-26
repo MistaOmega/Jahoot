@@ -16,6 +16,7 @@ public class ClientConnectUI {
     private JTextField tfUsername;
     private JTextField tfHostname;
     private JTextField tfPort;
+    private JTextArea consoleOutput;
 
 
     public ClientConnectUI() {
@@ -23,7 +24,9 @@ public class ClientConnectUI {
         tfHostnameDefault = tfHostname.getText();
         tfPortDefault = tfPort.getText();
         tfUsernameDefault = tfUsername.getText();
-
+        /**
+         * The following 3 focus listeners are to add a prompt text to the Textfields
+         */
         tfUsername.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -81,10 +84,11 @@ public class ClientConnectUI {
             try{
                 port = Integer.parseInt(tfPort.getText());
             } catch (NumberFormatException numberFormatException) {
+                setConsoleOutput("Port format incorrect");
                 tfPort.setText(tfPortDefault);
                 return;
             }
-            Client client = new Client(tfHostname.getText(), port, tfUsername.getText());
+            Client client = new Client(tfHostname.getText(), port, tfUsername.getText(), this);
             client.run();
         });
     }
@@ -100,5 +104,13 @@ public class ClientConnectUI {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
+    }
+
+    public void setConsoleOutput(String message){
+        consoleOutput.append(message + "\n");
+    }
+
+    public void clearConsole(){
+        consoleOutput.setText("");
     }
 }
