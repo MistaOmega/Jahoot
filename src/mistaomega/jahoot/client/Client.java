@@ -1,6 +1,7 @@
 package mistaomega.jahoot.client;
 
 import mistaomega.jahoot.gui.ClientConnectUI;
+import mistaomega.jahoot.gui.ClientMainUI;
 
 import java.io.*;
 import java.net.Socket;
@@ -8,8 +9,8 @@ import java.net.Socket;
 public class Client {
     private final String hostname;
     private final int port;
-    private String Username;
-    private ClientConnectUI clientConnectUI;
+    private final String Username;
+    private final ClientConnectUI clientConnectUI;
 
     public Client(String hostname, int port, String Username, ClientConnectUI clientConnectUI) {
         this.hostname = hostname;
@@ -25,28 +26,25 @@ public class Client {
             Socket client = new Socket(hostname, port);
 
             System.out.println("Just connected to " + client.getRemoteSocketAddress());
+            InputStream inFromServer = client.getInputStream();
             OutputStream outToServer = client.getOutputStream();
             DataOutputStream out = new DataOutputStream(outToServer);
-            out.writeUTF("u" + Username);
-            out.flush();
-
-
-            InputStream inFromServer = client.getInputStream();
             DataInputStream in = new DataInputStream(inFromServer);
-
             System.out.println("Server says " + in.readUTF());
+
+            if(in.readBoolean()){
+                out.writeUTF("u" + Username);
+                out.flush();
+                clientConnectUI.getMainPanel().setVisible(false);
+                ClientMainUI clientMainUI = new ClientMainUI();
+                clientMainUI.start();
+            }
+
+
         } catch (IOException e) {
             clientConnectUI.setConsoleOutput("Connection to server failed.");
             e.printStackTrace();
         }
-    }
-
-    String getUserName() {
-        return this.Username;
-    }
-
-    void setUserName(String userName) {
-        this.Username = userName;
     }
 
 }

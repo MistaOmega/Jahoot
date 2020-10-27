@@ -3,6 +3,7 @@ package mistaomega.jahoot.gui;
 import mistaomega.jahoot.server.JahootServer;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class ServerGUI {
     private static JahootServer jahootServer;

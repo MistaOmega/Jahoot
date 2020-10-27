@@ -3,6 +3,7 @@ package mistaomega.jahoot.gui;
 import mistaomega.jahoot.client.Client;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
@@ -72,7 +73,7 @@ public class ClientConnectUI {
                     return;
                 }
 
-                try{
+                try {
                     Integer.parseInt(tfPort.getText());
                 } catch (NumberFormatException numberFormatException) {
                     tfPort.setText(tfPortDefault);
@@ -81,13 +82,14 @@ public class ClientConnectUI {
         });
         btnConnect.addActionListener(e -> {
             int port;
-            try{
+            try {
                 port = Integer.parseInt(tfPort.getText());
             } catch (NumberFormatException numberFormatException) {
                 setConsoleOutput("Port format incorrect");
                 tfPort.setText(tfPortDefault);
                 return;
             }
+
             Client client = new Client(tfHostname.getText(), port, tfUsername.getText(), this);
             client.run();
         });
@@ -106,11 +108,16 @@ public class ClientConnectUI {
         frame.setVisible(true);
     }
 
-    public void setConsoleOutput(String message){
+    public void setConsoleOutput(String message) {
         consoleOutput.append(message + "\n");
     }
 
-    public void clearConsole(){
+    public void clearConsole() {
         consoleOutput.setText("");
     }
+
+    public JPanel getMainPanel() {
+        return mainPanel;
+    }
+
 }

@@ -8,6 +8,8 @@ import java.net.Socket;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class JahootServer {
     private final int port;
@@ -18,6 +20,8 @@ public class JahootServer {
     private Socket socket;
     private ServerSocket serverSocket = null;
     private List<Question> Questions;
+    private final ExecutorService Threadpool =
+            Executors.newFixedThreadPool(10);
 
     public JahootServer(int port) {
         this.port = port;
@@ -40,7 +44,8 @@ public class JahootServer {
 
                 ClientHandler newUser = new ClientHandler(socket, this, in, out);
                 Clients.add(newUser);
-                newUser.start();
+                this.Threadpool.execute(
+                        new ClientHandler(socket, this, in, out));
 
             } catch (IOException e) {
                 if (!isAcceptingConnections) {
@@ -118,6 +123,9 @@ public class JahootServer {
      * @param Username username to add
      */
     public void addUserName(String Username) {
+        if(Usernames.contains(Username)){
+            Usernames.add(Username);
+        }
         Usernames.add(Username);
     }
 

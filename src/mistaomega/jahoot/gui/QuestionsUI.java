@@ -3,6 +3,7 @@ package mistaomega.jahoot.gui;
 import mistaomega.jahoot.server.Question;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -18,7 +19,7 @@ public class QuestionsUI {
     private JTextField tfAnsCorrect;
     private JButton btnAddQuestion;
     private JButton btnSubmitQuestions;
-    private JList lstQuestions;
+    private JList<?> lstQuestions; //TODO Change wildcard for question object when properly implemented
     private JScrollPane scrollList;
 
     private final ArrayList<Question> Questions = new ArrayList<>();
@@ -68,4 +69,5 @@ public class QuestionsUI {
         oos.writeObject(question);
         oos.close();
     }
+
 }

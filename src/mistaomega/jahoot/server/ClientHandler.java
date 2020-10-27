@@ -1,17 +1,20 @@
 package mistaomega.jahoot.server;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.Socket;
 
 /**
  * Each client is handled (Server side) through one of these threads
  */
-public class ClientHandler extends Thread {
+public class ClientHandler implements Runnable {
 
-    private DataOutputStream out;
-    private DataInputStream in;
+    private final DataInputStream in;
     private final Socket socket;
     private final JahootServer jahootServer;
+    private final DataOutputStream out;
     private PrintWriter writer;
     private boolean readyToPlay = false;
 
@@ -23,10 +26,15 @@ public class ClientHandler extends Thread {
         this.out = out;
     }
 
+
     @Override
     public void run() {
-        super.run();
-        while(true) {
+        try {
+            out.writeBoolean(true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        while (true) {
             try {
                 requestChecker();
                 Thread.sleep(1000);
@@ -38,10 +46,10 @@ public class ClientHandler extends Thread {
     public void requestChecker() throws IOException {
         String received;
         received = in.readUTF();
-        if (received.charAt(0) == 'u'){
+        if (received.charAt(0) == 'u') {
             System.out.println("Username attempt");
             jahootServer.addUserName(received.substring(1));
-            System.out.println(jahootServer.getUsernames());
+           // printUsers();
         }
     }
 
@@ -58,7 +66,7 @@ public class ClientHandler extends Thread {
     }
 
     void printQuestion(String Question) {
-        writer.println("Question");
+        writer.println(Question);
 
     }
 
