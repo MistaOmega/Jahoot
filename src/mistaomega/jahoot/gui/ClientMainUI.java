@@ -7,7 +7,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 public class ClientMainUI extends Thread {
-    private ArrayList<Color> colorList;
+    private ArrayList<String> colorList;
     private ArrayList<JPanel> panels;
     private JPanel mainPanel;
     private JPanel answerPane1;
@@ -38,14 +38,14 @@ public class ClientMainUI extends Thread {
         for (JPanel panel : panels) {
             int index = rnd.nextInt(colorList.size());
             System.out.println(index);
-            panel.setBackground(colorList.get(index));
+            panel.setBackground(Color.decode(colorList.get(index)));
             colorList.remove(index);
         }
     }
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
-        colorList = new ArrayList<>(Arrays.asList(Color.MAGENTA, Color.CYAN, Color.ORANGE, Color.RED));
+        colorList = new ArrayList<>(Arrays.asList(JahootColors.JAHOOTBLUE.getHex(), JahootColors.JAHOOTLIME.getHex(), JahootColors.JAHOOTORANGE.getHex(), JahootColors.JAHOOTPINK.getHex()));
         panels = new ArrayList<>();
         answerPane1 = new JPanel();
         answerPane2 = new JPanel();
