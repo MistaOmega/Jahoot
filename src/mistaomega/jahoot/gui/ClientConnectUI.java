@@ -89,7 +89,7 @@ public class ClientConnectUI {
                 tfPort.setText(tfPortDefault);
                 return;
             }
-
+            btnConnect.setEnabled(false);
             Client client = new Client(tfHostname.getText(), port, tfUsername.getText(), this);
             client.run();
         });
@@ -120,4 +120,7 @@ public class ClientConnectUI {
         return mainPanel;
     }
 
+    public JButton getBtnConnect() {
+        return btnConnect;
+    }
 }

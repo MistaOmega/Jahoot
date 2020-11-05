@@ -20,71 +20,66 @@ public class ClientHandler implements Runnable {
     private PrintWriter writer;
     private boolean readyToPlay = false;
     private String username = "";
+    private volatile boolean shutdown;
 
-    private ServerGUI serverGUI;
 
 
-    public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out, ServerGUI serverGUI) {
+    public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out) {
         this.socket = socket;
         this.jahootServer = jahootServer;
         this.in = in;
         this.out = out;
-        this.serverGUI = serverGUI;
     }
 
 
     @Override
     public void run() {
-        try {
-            out.writeBoolean(false);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-
-        while (readyToPlay) { // game is running
-            try {
+        while(!shutdown) {
+            while (!isReadyToPlay()) { // waiting here!
                 requestChecker();
-                Thread.sleep(1000);
-            } catch (IOException | InterruptedException e) {
-                jahootServer.removeUser(username, this);
             }
         }
     }
 
-    public void requestChecker() throws IOException {
-        String received;
-        received = in.readUTF();
-        if (received.charAt(0) == 'u') {
-            System.out.println("Username attempt");
-            username = received.substring(1);
-            jahootServer.addUserName(received.substring(1));
-            printUsers();
-        }
+    public void requestChecker() {
+        try {
+            String received;
+            received = in.readUTF();
+            if (received.charAt(0) == 'u') {
+                System.out.println("Username attempt");
+                username = received.substring(1);
+                jahootServer.addUserName(received.substring(1));
+                printUsers();
+            }
 
-        if(received.charAt(0) == 'g'){
-            System.out.println("ready check");
-            readyToPlay = serverGUI.isReadytoplay();
-            out.writeBoolean(readyToPlay);
-            out.flush();
+            if (received.charAt(0) == 'g') {
+                System.out.println("ready check");
+                out.writeBoolean(isReadyToPlay());
+                out.flush();
+            }
+        } catch (IOException e) {
+            jahootServer.removeUser(username, this);
+            System.out.println("connection closed");
+            shutdown();
         }
     }
 
+    public void shutdown(){
+        shutdown = true;
+    }
 
     public void setReadyToPlay(boolean readyToPlay) {
         this.readyToPlay = readyToPlay;
     }
 
+    public boolean isReadyToPlay() {
+        return readyToPlay;
+    }
+
     void printUsers() {
-        if (jahootServer.isOtherUserConnected()) {
-            writer.println("Connected users: " + jahootServer.getUsernames());
-        } else {
-            writer.println("No other users connected");
-        }
     }
 
     void printQuestion(String Question) {
-        writer.println(Question);
 
     }
 

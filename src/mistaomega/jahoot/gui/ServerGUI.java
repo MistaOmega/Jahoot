@@ -3,9 +3,6 @@ package mistaomega.jahoot.gui;
 import mistaomega.jahoot.server.JahootServer;
 
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class ServerGUI {
     private static JahootServer jahootServer;
@@ -13,13 +10,10 @@ public class ServerGUI {
     private JPanel mainPanel;
     private JButton ready;
 
-    private boolean readytoplay = false;
+    private boolean ReadyToPlay = false;
 
     public ServerGUI() {
-        ready.addActionListener(e -> jahootServer.setReadyToPlay(true));
-        ready.addActionListener(e -> {
-            readytoplay = true;
-        });
+        ready.addActionListener(e -> setReadyToPlay());
     }
 
     public void run() {
@@ -34,7 +28,11 @@ public class ServerGUI {
         jahootServer.run();
     }
 
-    public boolean isReadytoplay() {
-        return readytoplay;
+    public boolean isReadyToPlay() {
+        return ReadyToPlay;
+    }
+
+    public void setReadyToPlay() {
+        jahootServer.setReadyToPlay(true);
     }
 }

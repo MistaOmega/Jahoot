@@ -1,10 +1,10 @@
 package mistaomega.jahoot.client;
 
 import mistaomega.jahoot.gui.ClientConnectUI;
-import mistaomega.jahoot.gui.ClientMainUI;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
 
 public class Client {
     private final String hostname;
@@ -32,23 +32,30 @@ public class Client {
             DataOutputStream out = new DataOutputStream(outToServer);
             DataInputStream in = new DataInputStream(inFromServer);
             System.out.println("Server says " + in.readUTF());
+
+            // send username
             out.writeUTF("u" + Username);
             out.flush();
 
-            while(waiting){
-                out.writeUTF("g");
-                if(in.readBoolean()){
-                    System.out.println("waiting");
-//                    clientConnectUI.getMainPanel().setVisible(false);
-//                    ClientMainUI clientMainUI = new ClientMainUI();
-//                    clientMainUI.start();
-                }
-                else{
-                    clientConnectUI.setConsoleOutput("Waiting for game start");
-                }
-            }
-            System.out.println("We fucking did it");
+            new Thread(() -> { // connection check thread
+                while (waiting) {
+                    try {
+                        out.writeUTF("g");
+                        out.flush();
+                        if (in.readBoolean()) {
+                            waiting = false;
+                            System.out.println("ready to play");
 
+                        }else{
+                            clientConnectUI.clearConsole();
+                            clientConnectUI.setConsoleOutput("Waiting");
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }).start();
 
         } catch (IOException e) {
             clientConnectUI.setConsoleOutput("Connection to server failed.");

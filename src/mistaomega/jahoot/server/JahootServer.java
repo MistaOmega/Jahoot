@@ -46,10 +46,10 @@ public class JahootServer {
                 out.writeUTF("Thank you for connecting to " + socket.getLocalSocketAddress());
                 out.flush();
 
-                ClientHandler newUser = new ClientHandler(socket, this, in, out, serverGUI);
+                ClientHandler newUser = new ClientHandler(socket, this, in, out);
                 Clients.add(newUser);
                 this.Threadpool.execute(
-                        new ClientHandler(socket, this, in, out, serverGUI));
+                        newUser);
 
             } catch (IOException e) {
                 if (!isAcceptingConnections) {
@@ -131,6 +131,8 @@ public class JahootServer {
             Usernames.add(Username);
         }
         Usernames.add(Username);
+
+
     }
 
     void removeUser(String Username, ClientHandler client) {
