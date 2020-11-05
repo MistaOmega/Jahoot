@@ -11,6 +11,7 @@ public class Client {
     private final int port;
     private final String Username;
     private final ClientConnectUI clientConnectUI;
+    private boolean waiting = true;
 
     public Client(String hostname, int port, String Username, ClientConnectUI clientConnectUI) {
         this.hostname = hostname;
@@ -31,14 +32,22 @@ public class Client {
             DataOutputStream out = new DataOutputStream(outToServer);
             DataInputStream in = new DataInputStream(inFromServer);
             System.out.println("Server says " + in.readUTF());
+            out.writeUTF("u" + Username);
+            out.flush();
 
-            if(in.readBoolean()){
-                out.writeUTF("u" + Username);
-                out.flush();
-                clientConnectUI.getMainPanel().setVisible(false);
-                ClientMainUI clientMainUI = new ClientMainUI();
-                clientMainUI.start();
+            while(waiting){
+                out.writeUTF("g");
+                if(in.readBoolean()){
+                    System.out.println("waiting");
+//                    clientConnectUI.getMainPanel().setVisible(false);
+//                    ClientMainUI clientMainUI = new ClientMainUI();
+//                    clientMainUI.start();
+                }
+                else{
+                    clientConnectUI.setConsoleOutput("Waiting for game start");
+                }
             }
+            System.out.println("We fucking did it");
 
 
         } catch (IOException e) {

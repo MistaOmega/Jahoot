@@ -2,6 +2,8 @@ package mistaomega.jahoot.gui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
@@ -14,18 +16,25 @@ public class ClientMainUI extends Thread {
     private JPanel answerPane2;
     private JPanel answerPane3;
     private JPanel answerPane4;
+    private JTextField tfTitle;
+    private JTextField tfQuestion;
+    private JLabel lblAnswer1;
+    private JLabel lblAnswer3;
+    private JLabel lblAnswer4;
+    private JButton btnAnswer2;
     private JFrame frame;
 
     public ClientMainUI() {
 
+        btnAnswer2.addActionListener(e -> {
+            System.out.println("your dead nan");
+        });
     }
 
     @Override
     public void run() {
         frame = new JFrame("Main GUI");
         frame.setContentPane(new ClientMainUI().mainPanel);
-        frame.getContentPane().setBackground(Color.BLACK);
-
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setVisible(true);
@@ -34,10 +43,8 @@ public class ClientMainUI extends Thread {
 
     public void setPanelColors() {
         Random rnd = new Random();
-        System.out.println("Hello");
         for (JPanel panel : panels) {
             int index = rnd.nextInt(colorList.size());
-            System.out.println(index);
             panel.setBackground(Color.decode(colorList.get(index)));
             colorList.remove(index);
         }

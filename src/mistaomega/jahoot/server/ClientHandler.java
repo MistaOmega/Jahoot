@@ -1,5 +1,7 @@
 package mistaomega.jahoot.server;
 
+import mistaomega.jahoot.gui.ServerGUI;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -17,28 +19,35 @@ public class ClientHandler implements Runnable {
     private final DataOutputStream out;
     private PrintWriter writer;
     private boolean readyToPlay = false;
+    private String username = "";
+
+    private ServerGUI serverGUI;
 
 
-    public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out) {
+    public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out, ServerGUI serverGUI) {
         this.socket = socket;
         this.jahootServer = jahootServer;
         this.in = in;
         this.out = out;
+        this.serverGUI = serverGUI;
     }
 
 
     @Override
     public void run() {
         try {
-            out.writeBoolean(true);
+            out.writeBoolean(false);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        while (true) {
+
+
+        while (readyToPlay) { // game is running
             try {
                 requestChecker();
                 Thread.sleep(1000);
-            } catch (IOException | InterruptedException ignored) {
+            } catch (IOException | InterruptedException e) {
+                jahootServer.removeUser(username, this);
             }
         }
     }
@@ -48,10 +57,19 @@ public class ClientHandler implements Runnable {
         received = in.readUTF();
         if (received.charAt(0) == 'u') {
             System.out.println("Username attempt");
+            username = received.substring(1);
             jahootServer.addUserName(received.substring(1));
-           // printUsers();
+            printUsers();
+        }
+
+        if(received.charAt(0) == 'g'){
+            System.out.println("ready check");
+            readyToPlay = serverGUI.isReadytoplay();
+            out.writeBoolean(readyToPlay);
+            out.flush();
         }
     }
+
 
     public void setReadyToPlay(boolean readyToPlay) {
         this.readyToPlay = readyToPlay;
@@ -71,6 +89,10 @@ public class ClientHandler implements Runnable {
     }
 
     void sendMessage(String message) {
-        writer.println(message);
+        try {
+            out.writeUTF(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

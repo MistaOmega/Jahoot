@@ -1,5 +1,7 @@
 package mistaomega.jahoot.server;
 
+import mistaomega.jahoot.gui.ServerGUI;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -22,9 +24,11 @@ public class JahootServer {
     private List<Question> Questions;
     private final ExecutorService Threadpool =
             Executors.newFixedThreadPool(10);
+    private ServerGUI serverGUI;
 
-    public JahootServer(int port) {
+    public JahootServer(int port, ServerGUI serverGUI) {
         this.port = port;
+        this.serverGUI = serverGUI;
     }
 
     public void run() {
@@ -42,10 +46,10 @@ public class JahootServer {
                 out.writeUTF("Thank you for connecting to " + socket.getLocalSocketAddress());
                 out.flush();
 
-                ClientHandler newUser = new ClientHandler(socket, this, in, out);
+                ClientHandler newUser = new ClientHandler(socket, this, in, out, serverGUI);
                 Clients.add(newUser);
                 this.Threadpool.execute(
-                        new ClientHandler(socket, this, in, out));
+                        new ClientHandler(socket, this, in, out, serverGUI));
 
             } catch (IOException e) {
                 if (!isAcceptingConnections) {
