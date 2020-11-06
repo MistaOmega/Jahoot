@@ -1,11 +1,6 @@
 package mistaomega.jahoot.server;
 
-import mistaomega.jahoot.gui.ServerGUI;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 /**
@@ -17,63 +12,78 @@ public class ClientHandler implements Runnable {
     private final Socket socket;
     private final JahootServer jahootServer;
     private final DataOutputStream out;
+    private final ObjectOutputStream objectOut;
+    private final ObjectInputStream objectIn;
     private PrintWriter writer;
     private boolean readyToPlay = false;
     private String username = "";
     private volatile boolean shutdown;
 
 
-
-    public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out) {
+    public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out, ObjectInputStream objectIn, ObjectOutputStream objectOut) {
         this.socket = socket;
         this.jahootServer = jahootServer;
         this.in = in;
         this.out = out;
+        this.objectOut = objectOut;
+        this.objectIn = objectIn;
     }
 
 
     @Override
     public void run() {
-        while(!shutdown) {
+        try {
             while (!isReadyToPlay()) { // waiting here!
+                if (Thread.currentThread().isInterrupted()) {
+                    break;
+                }
                 requestChecker();
             }
-        }
-    }
 
-    public void requestChecker() {
-        try {
-            String received;
-            received = in.readUTF();
-            if (received.charAt(0) == 'u') {
-                System.out.println("Username attempt");
-                username = received.substring(1);
-                jahootServer.addUserName(received.substring(1));
-                printUsers();
-            }
-
-            if (received.charAt(0) == 'g') {
-                System.out.println("ready check");
-                out.writeBoolean(isReadyToPlay());
-                out.flush();
-            }
+            Question q = new Question("ketamine", new String[]{"Hello", "Goodbye", "You're a whore", "ded"}, 'A');
+            objectOut.writeObject(q);
+            out.flush();
+            System.out.println("here");
+            requestChecker();
         } catch (IOException e) {
             jahootServer.removeUser(username, this);
             System.out.println("connection closed");
-            shutdown();
+            Thread.currentThread().interrupt();
         }
     }
 
-    public void shutdown(){
-        shutdown = true;
+    public void requestChecker() throws IOException {
+        String received;
+        received = in.readUTF();
+        if (received.charAt(0) == 'u') {
+            System.out.println("Username attempt");
+            username = received.substring(1);
+            jahootServer.addUserName(received.substring(1));
+            printUsers();
+        }
+
+        if (received.charAt(0) == 'g') {
+            System.out.println("ready check");
+            out.writeBoolean(isReadyToPlay());
+            out.flush();
+        }
+
+        if (received.equals("noresponse")) {
+            System.out.println("You're a failure.");
+        }
+
     }
 
-    public void setReadyToPlay(boolean readyToPlay) {
-        this.readyToPlay = readyToPlay;
+    public void shutdown() {
+        shutdown = true;
     }
 
     public boolean isReadyToPlay() {
         return readyToPlay;
+    }
+
+    public void setReadyToPlay(boolean readyToPlay) {
+        this.readyToPlay = readyToPlay;
     }
 
     void printUsers() {

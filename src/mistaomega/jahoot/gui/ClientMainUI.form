@@ -44,7 +44,7 @@
               <borderPainted value="false"/>
               <contentAreaFilled value="false"/>
               <opaque value="false"/>
-              <text value=""/>
+              <text value="HELLO!"/>
             </properties>
           </component>
         </children>
@@ -90,7 +90,8 @@
           <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <enabled value="false"/>
+          <editable value="false"/>
+          <enabled value="true"/>
           <font name="JetBrains Mono" size="48" style="1"/>
           <horizontalAlignment value="0"/>
           <text value="Jahoot"/>
@@ -101,8 +102,9 @@
           <grid row="1" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <enabled value="false"/>
-          <text value="Question: What is the meaning of life? "/>
+          <editable value="false"/>
+          <enabled value="true"/>
+          <text value="Temp"/>
         </properties>
       </component>
     </children>

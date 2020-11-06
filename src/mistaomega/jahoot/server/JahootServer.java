@@ -2,9 +2,7 @@ package mistaomega.jahoot.server;
 
 import mistaomega.jahoot.gui.ServerGUI;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashSet;
@@ -25,6 +23,7 @@ public class JahootServer {
     private final ExecutorService Threadpool =
             Executors.newFixedThreadPool(10);
     private ServerGUI serverGUI;
+    private int score;
 
     public JahootServer(int port, ServerGUI serverGUI) {
         this.port = port;
@@ -43,10 +42,12 @@ public class JahootServer {
                 System.out.println("Just connected to " + socket.getRemoteSocketAddress());
                 DataInputStream in = new DataInputStream(socket.getInputStream());
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
+                ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream());
+                ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
                 out.writeUTF("Thank you for connecting to " + socket.getLocalSocketAddress());
                 out.flush();
 
-                ClientHandler newUser = new ClientHandler(socket, this, in, out);
+                ClientHandler newUser = new ClientHandler(socket, this, in, out, objectIn, objectOut);
                 Clients.add(newUser);
                 this.Threadpool.execute(
                         newUser);
