@@ -40,11 +40,18 @@ public class ClientHandler implements Runnable {
                 requestChecker();
             }
 
-            Question q = new Question("ketamine", new String[]{"Hello", "Goodbye", "You're a whore", "ded"}, 'A');
+            Question q = new Question("What is the meaning of life", new String[]{"1", "2", "3", "42"}, 0);
             objectOut.writeObject(q);
             out.flush();
             System.out.println("here");
-            requestChecker();
+
+
+            int playerTotal = in.readInt();
+            jahootServer.setNewClientScore(this, jahootServer.getClientScore(this) + playerTotal);
+            System.out.println(jahootServer.getClientScore(this));
+
+            //after receiving total
+
         } catch (IOException e) {
             jahootServer.removeUser(username, this);
             System.out.println("connection closed");

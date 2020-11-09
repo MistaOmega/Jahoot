@@ -3,12 +3,11 @@ package mistaomega.jahoot.client;
 import mistaomega.jahoot.gui.ClientConnectUI;
 import mistaomega.jahoot.gui.ClientMainUI;
 import mistaomega.jahoot.server.Question;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Client {
     private final String hostname;
@@ -66,7 +65,7 @@ public class Client {
                             clientConnectUI.clearConsole();
                             clientConnectUI.setConsoleOutput("Waiting");
                         }
-                    } catch (IOException | ClassNotFoundException | InterruptedException e) {
+                    } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
 
@@ -80,7 +79,7 @@ public class Client {
         }
     }
 
-    public void playGame(ClientMainUI clientMainUI) throws IOException, ClassNotFoundException, InterruptedException {
+    public void playGame(@NotNull ClientMainUI clientMainUI) throws IOException, ClassNotFoundException {
         Thread.onSpinWait();
 
         Question question = (Question) objectIn.readObject();
@@ -92,29 +91,56 @@ public class Client {
         String correct = answers.get(question.getCorrect());
         Collections.shuffle(answers);
         // send here
+        final Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            int i = 30000;
 
+            public void run() {
+                i -= 1;
+                if (questionAnswered) {
+                    timer.cancel();
+                    System.out.println("Entry 1");
+                    try {
+                        checkAnswer(i, answers, correct);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (i < 0) {
+                    timer.cancel();
+                    try {
+                        checkAnswer(i, answers, correct);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 
-        //receive here
-        while(!questionAnswered){
-            //if timer is finished{
-            // out.writeUTF("noresponse");
-            //}
-        }
-
-        if(correct.equals(answers.get(givenAnswerIndex))){
-            out.writeUTF("A correct");
-        }
-        else{
-            out.writeUTF("A incorrect");
-        }
-
-        Thread.sleep(3000); // timer starts client side
+                }
+            }
+        }, 0, 1000);
 
     }
 
-    public void answerQuestion(int index){
+    public void answerQuestion(int index) {
         givenAnswerIndex = index;
         questionAnswered = true;
     }
 
+    public void checkAnswer(int timeLeft, List<String> answers, String correctAnswer) throws IOException {
+        int total;
+        if (!questionAnswered) {
+            out.writeInt(0);
+        }
+        else {
+
+            total = correctAnswer.equals(answers.get(givenAnswerIndex)) ? 1000 / (timeLeft / 1000) :
+                    100 / (timeLeft / 1000);
+            out.writeInt(total);
+        }
+
+    }
+
+    @Override
+    public String toString() {
+        return Username + Thread.currentThread().getId();
+    }
 }

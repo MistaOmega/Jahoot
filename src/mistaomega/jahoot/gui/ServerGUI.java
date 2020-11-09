@@ -1,12 +1,15 @@
 package mistaomega.jahoot.gui;
 
+import mistaomega.jahoot.client.Client;
+import mistaomega.jahoot.server.ClientHandler;
 import mistaomega.jahoot.server.JahootServer;
 
 import javax.swing.*;
+import java.util.Set;
 
 public class ServerGUI {
     private static JahootServer jahootServer;
-    private JList Users;
+    private JList<ClientHandler> Users;
     private JPanel mainPanel;
     private JButton ready;
 
@@ -34,5 +37,10 @@ public class ServerGUI {
 
     public void setReadyToPlay() {
         jahootServer.setReadyToPlay(true);
+    }
+
+    public void addToUsers(Set<ClientHandler> clients){
+        Users.removeAll();
+        Users.setListData(clients.toArray(new ClientHandler[0]));
     }
 }

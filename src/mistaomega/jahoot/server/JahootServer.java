@@ -48,6 +48,7 @@ public class JahootServer {
 
                 ClientHandler newUser = new ClientHandler(socket, this, in, out, objectIn, objectOut);
                 Clients.add(newUser);
+                serverGUI.addToUsers(Clients);
                 this.Threadpool.execute(
                         newUser);
 
@@ -152,6 +153,15 @@ public class JahootServer {
                 Clients) {
             ClientScores.put(client, 0);
         }
+    }
+
+    public int getClientScore(ClientHandler clientHandler){
+        return ClientScores.get(clientHandler);
+    }
+
+    public void setNewClientScore(ClientHandler clientHandler, int newTotal){
+        ClientScores.remove(clientHandler);
+        ClientScores.put(clientHandler, newTotal);
     }
 
     public Set<String> getUsernames() {

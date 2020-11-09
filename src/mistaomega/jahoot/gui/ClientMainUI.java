@@ -28,7 +28,7 @@ public class ClientMainUI extends Thread {
         this.client = client;
 
         btnAnswer2.addActionListener(e -> {
-            System.out.println("your dead nan");
+           client.answerQuestion(0);
         });
     }
 
