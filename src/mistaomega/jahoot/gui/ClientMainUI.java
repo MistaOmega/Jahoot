@@ -28,7 +28,7 @@ public class ClientMainUI extends Thread {
         this.client = client;
 
         btnAnswer2.addActionListener(e -> {
-           client.answerQuestion(0);
+            client.answerQuestion(0);
         });
     }
 

@@ -13,7 +13,7 @@ public class Main {
      * This class makes the look of the UI look like that of the host machine
      * For example. running Windows 10, will make the UI look like a Windows 10 UI, same applies for MacOS or Linux
      */
-    public static void setLookAndFeel(){
+    public static void setLookAndFeel() {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
@@ -21,13 +21,18 @@ public class Main {
         }
     }
 
+    /**
+     * Entry point
+     *
+     * @param args ignored
+     */
     public static void main(String[] args) {
         setLookAndFeel();
 
         Object[] options = {"Create Questions",
                 "Run Client",
                 "Run Server"};
-        int n = JOptionPane.showOptionDialog(frame,
+        int option = JOptionPane.showOptionDialog(frame,
                 "Would you to create a question bank, run the client or host the server?",
                 "Setup",
                 JOptionPane.YES_NO_OPTION,
@@ -35,9 +40,10 @@ public class Main {
                 null,
                 options,  // Button titles
                 options[0]); // default button title
-        System.out.println(n);
+        System.out.println(option);
 
-        switch (n) {
+        // Option determines which window to run.
+        switch (option) {
             case 0:
                 QuestionsUI questionsUI = new QuestionsUI();
                 questionsUI.run();

@@ -16,12 +16,12 @@ public class JahootServer {
     private final Map<ClientHandler, Integer> ClientScores = new HashMap<>();
     private final ExecutorService Threadpool =
             Executors.newFixedThreadPool(10);
+    private final ServerGUI serverGUI;
     protected Thread RunningThread = null;
     private boolean isAcceptingConnections = true;
     private Socket socket;
     private ServerSocket serverSocket = null;
     private List<Question> Questions;
-    private final ServerGUI serverGUI;
     private int score;
 
     public JahootServer(int port, ServerGUI serverGUI) {
@@ -155,11 +155,11 @@ public class JahootServer {
         }
     }
 
-    public int getClientScore(ClientHandler clientHandler){
+    public int getClientScore(ClientHandler clientHandler) {
         return ClientScores.get(clientHandler);
     }
 
-    public void setNewClientScore(ClientHandler clientHandler, int newTotal){
+    public void setNewClientScore(ClientHandler clientHandler, int newTotal) {
         ClientScores.remove(clientHandler);
         ClientScores.put(clientHandler, newTotal);
     }

@@ -29,7 +29,6 @@ public class ClientHandler implements Runnable {
         this.objectIn = objectIn;
     }
 
-
     @Override
     public void run() {
         try {
@@ -41,6 +40,8 @@ public class ClientHandler implements Runnable {
             }
 
             Question q = new Question("What is the meaning of life", new String[]{"1", "2", "3", "42"}, 0);
+
+            //foreach question in questions
             objectOut.writeObject(q);
             out.flush();
             System.out.println("here");
@@ -75,9 +76,6 @@ public class ClientHandler implements Runnable {
             out.flush();
         }
 
-        if (received.equals("noresponse")) {
-            System.out.println("You're a failure.");
-        }
 
     }
 

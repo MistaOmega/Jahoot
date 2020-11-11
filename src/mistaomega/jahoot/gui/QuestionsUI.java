@@ -3,7 +3,6 @@ package mistaomega.jahoot.gui;
 import mistaomega.jahoot.server.Question;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,42 +10,57 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 public class QuestionsUI {
+    private final ArrayList<Question> Questions = new ArrayList<>();
     private JPanel mainPanel;
     private JTextField tfQuestionTitle;
     private JTextField tfAns1;
     private JTextField tfAns2;
     private JTextField tfAns3;
-    private JTextField tfAnsCorrect;
+    private JTextField tfAns4;
     private JButton btnAddQuestion;
     private JButton btnSubmitQuestions;
     private JList<?> lstQuestions; //TODO Change wildcard for question object when properly implemented
     private JScrollPane scrollList;
-
-    private final ArrayList<Question> Questions = new ArrayList<>();
+    private JTextField tfQuestionBankTitle;
+    private JComboBox comboBox1;
 
     public QuestionsUI() {
         btnAddQuestion.addActionListener(e -> {
             addQuestion();
         });
+        btnSubmitQuestions.addActionListener(e -> {
+            submitQuestions();
+        });
+    }
+
+    public static void serializeQuestions(ArrayList<Question> questions, String filename) throws IOException {
+        FileOutputStream fos = new FileOutputStream(filename);
+        BufferedOutputStream bos = new BufferedOutputStream(fos);
+        ObjectOutputStream oos = new ObjectOutputStream(bos);
+        oos.writeObject(questions);
+        oos.close();
     }
 
     public void addQuestion() {
+        if(tfQuestionTitle.getText().isEmpty() || tfAns1.getText().isEmpty()
+                || tfAns2.getText().isEmpty()|| tfAns3.getText().isEmpty()
+                || tfAns4.getText().isEmpty()){
+            JOptionPane.showConfirmDialog(mainPanel, "Please fill out all fields");
+            return;
+        }
+
         String QuestionName = tfQuestionTitle.getText();
         String[] Choices = new String[4];
         Choices[0] = tfAns1.getText();
         Choices[1] = tfAns2.getText();
         Choices[2] = tfAns3.getText();
-        Choices[3] = tfAnsCorrect.getText();
+        Choices[3] = tfAns4.getText();
         char CorrectAnswer = 'D';
 
         Question toAdd = new Question(QuestionName, Choices, CorrectAnswer);
         Questions.add(toAdd);
 
-        try {
-            serializeQuestions(toAdd, "questions.txt");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
     }
 
     private void createUIComponents() {
@@ -62,12 +76,23 @@ public class QuestionsUI {
 
     }
 
-    public static void serializeQuestions(Object question, String filename) throws IOException {
-        FileOutputStream fos = new FileOutputStream(filename);
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(question);
-        oos.close();
+    public void submitQuestions(){
+
+        if(Questions.isEmpty()){
+            JOptionPane.showConfirmDialog(mainPanel, "Question bank empty");
+            return;
+        }
+
+        if(tfQuestionBankTitle.getText().isEmpty()){
+            JOptionPane.showConfirmDialog(mainPanel, "Add a title for the question bank");
+            return;
+        }
+
+        try {
+            serializeQuestions(Questions, tfQuestionBankTitle.getText()+".qbk");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

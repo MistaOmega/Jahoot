@@ -3,7 +3,6 @@ package mistaomega.jahoot.gui;
 import mistaomega.jahoot.client.Client;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
