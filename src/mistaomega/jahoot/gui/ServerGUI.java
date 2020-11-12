@@ -4,6 +4,7 @@ import mistaomega.jahoot.server.ClientHandler;
 import mistaomega.jahoot.server.JahootServer;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.Set;
 
 public class ServerGUI {
@@ -42,4 +43,5 @@ public class ServerGUI {
         Users.removeAll();
         Users.setListData(clients.toArray(new ClientHandler[0]));
     }
+
 }

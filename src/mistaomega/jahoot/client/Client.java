@@ -3,11 +3,11 @@ package mistaomega.jahoot.client;
 import mistaomega.jahoot.gui.ClientConnectUI;
 import mistaomega.jahoot.gui.ClientMainUI;
 import mistaomega.jahoot.server.Question;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class Client {
     private final String hostname;
@@ -47,82 +47,31 @@ public class Client {
             // send username
             out.writeUTF("u" + Username);
             out.flush();
+            while (!GameStarted) {
+                try {
+                    out.writeUTF("g");
+                    out.flush();
+                    if (in.readBoolean()) {
+                        GameStarted = true;
+                        System.out.println("ready to play");
+                        ClientMainUI clientMainUI = new ClientMainUI(this);
+                        clientMainUI.run(objectIn);
 
-            new Thread(() -> { // connection check thread
-                while (!GameStarted) {
-                    try {
-                        out.writeUTF("g");
-                        out.flush();
-                        if (in.readBoolean()) {
-                            GameStarted = true;
-                            System.out.println("ready to play");
-                            ClientMainUI clientMainUI = new ClientMainUI(this);
-                            clientMainUI.start();
-                            playGame(clientMainUI);
-                            break;
+                        break;
 
-                        } else {
-                            clientConnectUI.clearConsole();
-                            clientConnectUI.setConsoleOutput("Waiting");
-                        }
-                    } catch (IOException | ClassNotFoundException e) {
-                        e.printStackTrace();
+                    } else {
+                        clientConnectUI.clearConsole();
+                        clientConnectUI.setConsoleOutput("Waiting");
                     }
-
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-            }).start();
 
-
+            }
         } catch (IOException e) {
             clientConnectUI.setConsoleOutput("Connection to server failed.");
             e.printStackTrace();
         }
-    }
-
-    public void playGame(@NotNull ClientMainUI clientMainUI) throws IOException, ClassNotFoundException {
-        Thread.onSpinWait();
-
-        Question question = (Question) objectIn.readObject();
-        System.out.println(question.getQuestionName());
-
-        clientMainUI.addQuestion(question.getQuestionName()); //TODO not working for some reason
-
-        List<String> answers = Arrays.asList(question.getQuestionChoices());
-        String correct = answers.get(question.getCorrect());
-        Collections.shuffle(answers);
-        // send here
-        final Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            int i = 30000;
-
-            public void run() {
-                i -= 1;
-                if (questionAnswered) { // If statement triggered if question is answered before the timer runs out
-                    timer.cancel();
-                    System.out.println("Entry 1");
-                    try {
-                        checkAnswer(i, answers, correct);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (i < 0) { // triggered if the timer runs out
-                    timer.cancel();
-                    try {
-                        checkAnswer(i, answers, correct);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-        }, 0, 1000);
-
-    }
-
-    public void answerQuestion(int index) {
-        givenAnswerIndex = index;
-        questionAnswered = true;
     }
 
     public void checkAnswer(int timeLeft, List<String> answers, String correctAnswer) throws IOException {

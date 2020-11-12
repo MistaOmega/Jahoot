@@ -36,4 +36,10 @@ public class Question implements Serializable { //TODO Implement this
     public void setQuestionChoices(String[] questionChoices) {
         QuestionChoices = questionChoices;
     }
+
+
+    @Override
+    public String toString() {
+        return this.QuestionName;
+    }
 }

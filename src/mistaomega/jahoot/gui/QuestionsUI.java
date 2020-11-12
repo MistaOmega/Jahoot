@@ -3,6 +3,7 @@ package mistaomega.jahoot.gui;
 import mistaomega.jahoot.server.Question;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -19,10 +20,10 @@ public class QuestionsUI {
     private JTextField tfAns4;
     private JButton btnAddQuestion;
     private JButton btnSubmitQuestions;
-    private JList<?> lstQuestions; //TODO Change wildcard for question object when properly implemented
+    private JList<Question> lstQuestions; //TODO Change wildcard for question object when properly implemented
     private JScrollPane scrollList;
     private JTextField tfQuestionBankTitle;
-    private JComboBox comboBox1;
+    private JComboBox<String> CorrectComboBox;
 
     public QuestionsUI() {
         btnAddQuestion.addActionListener(e -> {
@@ -42,9 +43,17 @@ public class QuestionsUI {
     }
 
     public void addQuestion() {
-        if(tfQuestionTitle.getText().isEmpty() || tfAns1.getText().isEmpty()
-                || tfAns2.getText().isEmpty()|| tfAns3.getText().isEmpty()
-                || tfAns4.getText().isEmpty()){
+        if (lstQuestions.getModel().getSize() == 0) {
+            DefaultListModel<Question> listModel = new DefaultListModel<>();
+            lstQuestions.setModel(listModel);
+        }
+        DefaultListModel<Question> listModel = (DefaultListModel<Question>) lstQuestions.getModel();
+        listModel.addElement(new Question("Hello", new String[0], 1));
+
+
+        if (tfQuestionTitle.getText().isEmpty() || tfAns1.getText().isEmpty()
+                || tfAns2.getText().isEmpty() || tfAns3.getText().isEmpty()
+                || tfAns4.getText().isEmpty()) {
             JOptionPane.showConfirmDialog(mainPanel, "Please fill out all fields");
             return;
         }
@@ -76,20 +85,20 @@ public class QuestionsUI {
 
     }
 
-    public void submitQuestions(){
+    public void submitQuestions() {
 
-        if(Questions.isEmpty()){
+        if (Questions.isEmpty()) {
             JOptionPane.showConfirmDialog(mainPanel, "Question bank empty");
             return;
         }
 
-        if(tfQuestionBankTitle.getText().isEmpty()){
+        if (tfQuestionBankTitle.getText().isEmpty()) {
             JOptionPane.showConfirmDialog(mainPanel, "Add a title for the question bank");
             return;
         }
 
         try {
-            serializeQuestions(Questions, tfQuestionBankTitle.getText()+".qbk");
+            serializeQuestions(Questions, tfQuestionBankTitle.getText() + ".qbk");
         } catch (IOException e) {
             e.printStackTrace();
         }

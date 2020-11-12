@@ -17,7 +17,6 @@ public class ClientHandler implements Runnable {
     private PrintWriter writer;
     private boolean readyToPlay = false;
     private String username = "";
-    private volatile boolean shutdown;
 
 
     public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out, ObjectInputStream objectIn, ObjectOutputStream objectOut) {
@@ -77,10 +76,6 @@ public class ClientHandler implements Runnable {
         }
 
 
-    }
-
-    public void shutdown() {
-        shutdown = true;
     }
 
     public boolean isReadyToPlay() {
