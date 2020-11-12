@@ -38,19 +38,21 @@ public class ClientHandler implements Runnable {
                 requestChecker();
             }
 
-            Question q = new Question("What is the meaning of life", new String[]{"1", "2", "3", "42"}, 0);
+            if(in.readInt() == 1) {
+                Question q = new Question("What is the meaning of life", new String[]{"1", "2", "3", "42"}, 0);
 
-            //foreach question in questions
-            objectOut.writeObject(q);
-            out.flush();
-            System.out.println("here");
+                //foreach question in questions
+                objectOut.writeObject(q);
+                out.flush();
 
+                System.out.println("here");
 
-            int playerTotal = in.readInt();
-            jahootServer.setNewClientScore(this, jahootServer.getClientScore(this) + playerTotal);
-            System.out.println(jahootServer.getClientScore(this));
+                int playerTotal = in.readInt();
+                jahootServer.setNewClientScore(this, jahootServer.getClientScore(this) + playerTotal);
+                System.out.println(jahootServer.getClientScore(this));
 
-            //after receiving total
+                //after receiving total
+            }
 
         } catch (IOException e) {
             jahootServer.removeUser(username, this);
@@ -59,9 +61,9 @@ public class ClientHandler implements Runnable {
         }
     }
 
+
     public void requestChecker() throws IOException {
-        String received;
-        received = in.readUTF();
+        String received = in.readUTF();
         if (received.charAt(0) == 'u') {
             System.out.println("Username attempt");
             username = received.substring(1);

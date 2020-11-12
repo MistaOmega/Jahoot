@@ -18,6 +18,7 @@ public class Client {
     ObjectInputStream objectIn;
     DataOutputStream out;
     DataInputStream in;
+    ClientMainUI clientMainUI = null;
     private volatile boolean GameStarted = false;
     private volatile boolean questionAnswered;
     private volatile int givenAnswerIndex;
@@ -52,10 +53,11 @@ public class Client {
                     out.writeUTF("g");
                     out.flush();
                     if (in.readBoolean()) {
+                        out.writeInt(1);
                         GameStarted = true;
                         System.out.println("ready to play");
-                        ClientMainUI clientMainUI = new ClientMainUI(this);
-                        clientMainUI.run(objectIn);
+                        clientMainUI = new ClientMainUI(this, objectIn);
+                        clientMainUI.run();
 
                         break;
 
@@ -74,14 +76,55 @@ public class Client {
         }
     }
 
+    public void playGame() throws IOException, ClassNotFoundException {
+        Question question = (Question) objectIn.readObject();
+        System.out.println(question.getQuestionName());
+       clientMainUI.addQuestion(question);
+        List<String> answers = Arrays.asList(question.getQuestionChoices());
+        String correct = answers.get(question.getCorrect());
+        Collections.shuffle(answers);
+        // send here
+        final Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            int i = 30000;
+            public void run() {
+                i -= 1;
+                if (questionAnswered) { // If statement triggered if question is answered before the timer runs out
+                    timer.cancel();
+                    System.out.println("Entry 1");
+                    try {
+                        checkAnswer(i, answers, correct);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (i < 0) { // triggered if the timer runs out
+                    timer.cancel();
+                    try {
+                        checkAnswer(i, answers, correct);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        }, 0, 1000);
+
+    }
+
+    public void answerQuestion(int index) {
+        givenAnswerIndex = index;
+        questionAnswered = true;
+    }
+
     public void checkAnswer(int timeLeft, List<String> answers, String correctAnswer) throws IOException {
         int total;
         if (!questionAnswered) {
             out.writeInt(0);
         } else {
 
-            total = correctAnswer.equals(answers.get(givenAnswerIndex)) ? 1000 / (timeLeft / 1000) :
-                    100 / (timeLeft / 1000);
+            total = correctAnswer.equals(answers.get(givenAnswerIndex)) ? 1000 - (timeLeft / 1000) :
+                    100 - (timeLeft / 1000);
             out.writeInt(total);
         }
 
