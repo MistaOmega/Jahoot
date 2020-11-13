@@ -66,10 +66,6 @@ public class JahootServer {
 
     }
 
-    public void setAcceptingConnections(boolean acceptingConnections) {
-        isAcceptingConnections = acceptingConnections;
-    }
-
     public synchronized void stop() {
         this.isAcceptingConnections = false;
         try {
@@ -95,36 +91,6 @@ public class JahootServer {
         isAcceptingConnections = false;
     }
 
-    /**
-     * Broadcast message to all clients
-     *
-     * @param message what to broadcast
-     */
-    public void broadcast(String message) {
-        for (ClientHandler client : Clients) {
-            client.sendMessage(message);
-        }
-    }
-
-    /**
-     * Broadcast message to all clients
-     *
-     * @param message what to broadcast
-     * @param exclude this is a ClientHandler that is used to exclude a user
-     */
-    public void broadcast(String message, ClientHandler exclude) {
-        for (ClientHandler client : Clients) {
-            if (client != exclude) {
-                client.sendMessage(message);
-            }
-        }
-    }
-
-    public void sendQuestion(Question Question) {
-        for (ClientHandler clientHandler : Clients) {
-            clientHandler.printQuestion(Question.toString());
-        }
-    }
 
     /**
      * Add username to the usernames list
@@ -141,6 +107,7 @@ public class JahootServer {
     }
 
    public void removeUser(String Username, ClientHandler client) {
+        client.shutdown();
         boolean removed = Usernames.remove(Username);
         if (removed) {
             Clients.remove(client);

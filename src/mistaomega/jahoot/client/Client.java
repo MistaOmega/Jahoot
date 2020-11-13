@@ -6,6 +6,7 @@ import mistaomega.jahoot.server.Question;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -48,28 +49,28 @@ public class Client {
             out.writeUTF("u" + Username);
             out.flush();
             while (!GameStarted) {
-                try {
-                    out.writeUTF("g");
-                    out.flush();
-                    if (in.readBoolean()) {
-                        GameStarted = true;
-                        System.out.println("ready to play");
-                        ClientMainUI clientMainUI = new ClientMainUI(this);
-                        clientMainUI.run(objectIn);
+                out.writeUTF("g");
+                out.flush();
+                boolean isReady;
+                isReady = in.readBoolean();
+                if (isReady) {
+                    GameStarted = true;
+                    System.out.println("ready to play");
+                    ClientMainUI clientMainUI = new ClientMainUI(this);
+                    clientMainUI.run(objectIn);
 
-                        break;
+                    break;
 
-                    } else {
-                        clientConnectUI.clearConsole();
-                        clientConnectUI.setConsoleOutput("Waiting");
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-
+                else {
+                    clientConnectUI.clearConsole();
+                    clientConnectUI.setConsoleOutput("Waiting");
+                }
+                Thread.sleep(500);
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             clientConnectUI.setConsoleOutput("Connection to server failed.");
+            clientConnectUI.getBtnConnect().setEnabled(true);
             e.printStackTrace();
         }
     }

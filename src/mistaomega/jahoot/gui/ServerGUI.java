@@ -27,8 +27,8 @@ public class ServerGUI {
             if(lstUsers.getModel().getSize() == 0) {
                 return;
             }
-            removeFromUsers(lstUsers.getSelectedValue());
             jahootServer.removeUser(lstUsers.getSelectedValue().getUsername(), lstUsers.getSelectedValue());
+            removeFromUsers(lstUsers.getSelectedValue());
         });
     }
     /**
@@ -76,8 +76,10 @@ public class ServerGUI {
         if (lstUsers.getModel().getSize() == 0) { // check if the model for the list is empty
             DefaultListModel<ClientHandler> defaultListModel = new DefaultListModel<>(); // create new list model
             lstUsers.setModel(defaultListModel); // set list model to the new defaultListModel
+            btnRemoveUser.setEnabled(true);
         }
-
+        DefaultListModel<ClientHandler> defaultListModel = (DefaultListModel<ClientHandler>) lstUsers.getModel(); // Need to cast to a parameterised version of the DefaultListModel to add later
+        defaultListModel.addElement(client);
     }
 
     /**
@@ -88,6 +90,7 @@ public class ServerGUI {
     public void removeFromUsers(ClientHandler client) {
         DefaultListModel<ClientHandler> defaultListModel = (DefaultListModel<ClientHandler>) lstUsers.getModel(); // Need to cast to a parameterised version of the DefaultListModel to add later
         defaultListModel.removeElement(client);
+
     }
 
 }
