@@ -48,7 +48,7 @@ public class JahootServer {
 
                 ClientHandler newUser = new ClientHandler(socket, this, in, out, objectIn, objectOut);
                 Clients.add(newUser);
-                serverGUI.addToUsers(Clients);
+                serverGUI.addToUsers(newUser);
                 this.Threadpool.execute(
                         newUser);
 
@@ -140,7 +140,7 @@ public class JahootServer {
 
     }
 
-    void removeUser(String Username, ClientHandler client) {
+   public void removeUser(String Username, ClientHandler client) {
         boolean removed = Usernames.remove(Username);
         if (removed) {
             Clients.remove(client);

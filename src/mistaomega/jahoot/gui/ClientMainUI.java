@@ -7,9 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.*;
 import java.util.List;
 import java.util.Timer;
+import java.util.*;
 
 public class ClientMainUI {
     private final Client client;
@@ -31,7 +31,13 @@ public class ClientMainUI {
 
     public ClientMainUI(Client client) {
         this.client = client;
+        initListeners();
+    }
 
+    /**
+     * listeners set here
+     */
+    public void initListeners() {
         btnAnswer2.addActionListener(e -> {
             answerQuestion(0);
         });

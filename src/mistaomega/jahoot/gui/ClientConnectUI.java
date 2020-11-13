@@ -21,13 +21,17 @@ public class ClientConnectUI {
 
 
     public ClientConnectUI() {
-
         tfHostnameDefault = tfHostname.getText();
         tfPortDefault = tfPort.getText();
         tfUsernameDefault = tfUsername.getText();
-        /**
-         * The following 3 focus listeners are to add a prompt text to the Textfields
-         */
+
+        initListeners();
+    }
+
+    /**
+     * listeners set here
+     */
+    public void initListeners(){
         tfUsername.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {

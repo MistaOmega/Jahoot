@@ -26,6 +26,13 @@ public class QuestionsUI {
     private JComboBox<String> CorrectComboBox;
 
     public QuestionsUI() {
+        initListeners();
+    }
+
+    /**
+     * listeners set here
+     */
+    public void initListeners(){
         btnAddQuestion.addActionListener(e -> {
             addQuestion();
         });
