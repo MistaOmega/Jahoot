@@ -5,6 +5,8 @@ import mistaomega.jahoot.server.Question;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.List;
@@ -26,22 +28,23 @@ public class ClientMainUI {
     private JButton btnAnswer1;
     private JButton btnAnswer3;
     private JButton btnAnswer4;
-    private boolean questionAnswered;
-    private int givenAnswerIndex;
-    private ObjectInputStream objectIn;
 
     public ClientMainUI(Client client) {
         this.client = client;
         initListeners();
+        btnAnswer1.addActionListener(e -> {
+            client.answerQuestion(0);
+        });
     }
 
     /**
      * listeners set here
      */
     public void initListeners() {
-        btnAnswer2.addActionListener(e -> {
-            client.answerQuestion(0);
-        });
+        btnAnswer1.addActionListener(e -> client.answerQuestion(0));
+        btnAnswer2.addActionListener(e -> client.answerQuestion(1));
+        btnAnswer3.addActionListener(e -> client.answerQuestion(2));
+        btnAnswer4.addActionListener(e -> client.answerQuestion(3));
     }
 
     public void run() {

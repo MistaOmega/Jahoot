@@ -4,6 +4,8 @@ import java.io.*;
 import java.lang.reflect.Array;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Each client is handled (Server side) through one of these threads
@@ -61,6 +63,13 @@ public class ClientHandler implements Runnable {
                     while (!jahootServer.AllClientsResponded()) {
                         System.out.println("waiting for other clients");
                     }
+
+                    //leaderboards
+                    Map<ClientHandler, Integer> clientScores = jahootServer.getClientScores();
+                    Map<String, Integer> stringIntegerMap = convertClientHandlerMapToStringMap(clientScores);
+
+
+                    objectOut.writeObject(stringIntegerMap);
                 }
 
                 //Game ended here
@@ -123,5 +132,15 @@ public class ClientHandler implements Runnable {
 
     public boolean isQuestionResponded() {
         return questionResponded;
+    }
+
+    public Map<String, Integer> convertClientHandlerMapToStringMap (Map<ClientHandler, Integer>clients){
+        Map<String, Integer> StringScores = new HashMap<>();
+        for (ClientHandler client:
+             clients.keySet()) {
+            StringScores.put(client.getUsername(), clients.get(client));
+        }
+
+        return StringScores;
     }
 }

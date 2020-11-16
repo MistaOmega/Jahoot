@@ -2,6 +2,8 @@ package mistaomega.jahoot.client;
 
 import mistaomega.jahoot.gui.ClientConnectUI;
 import mistaomega.jahoot.gui.ClientMainUI;
+import mistaomega.jahoot.gui.Leaderboard;
+import mistaomega.jahoot.server.ClientHandler;
 import mistaomega.jahoot.server.Question;
 
 import java.io.*;
@@ -16,6 +18,7 @@ public class Client {
     private final String Username;
     private final ClientConnectUI clientConnectUI;
     private ClientMainUI clientMainUI;
+    private final Leaderboard leaderboard;
     private ObjectOutputStream objectOut;
     private ObjectInputStream objectIn;
     private DataOutputStream out;
@@ -29,6 +32,9 @@ public class Client {
         this.port = port;
         this.Username = Username;
         this.clientConnectUI = clientConnectUI;
+
+        leaderboard = new Leaderboard();
+        leaderboard.run();
     }
 
     public void run() {
@@ -79,17 +85,26 @@ public class Client {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void checkAnswer(int timeLeft, List<String> answers, String correctAnswer) {
         try {
             int total = 0;
             if (!questionAnswered) {
                 out.writeInt(0);
             } else {
-                total += correctAnswer.equals(answers.get(givenAnswerIndex)) ? 1000 / timeLeft : 100 / timeLeft;
+                total+= correctAnswer.equals(answers.get(givenAnswerIndex)) ? 1000 * (timeLeft / 10000) : 100 * (timeLeft / 10000);
+                System.out.println("Total: "+total);
                 out.writeInt(total);
             }
+
+            Map<String, Integer> clientScores = (Map<String, Integer>) objectIn.readObject();
+
+            leaderboard.displayLatestScores(clientScores);
+            leaderboard.show();
+            Thread.sleep(5000);
+            leaderboard.hide();
             playGame();
-        } catch (ClassNotFoundException | IOException e) {
+        } catch (ClassNotFoundException | IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
@@ -99,16 +114,16 @@ public class Client {
         questionAnswered = false;
         Question question = (Question) objectIn.readObject();
         List<String> answers = Arrays.asList(question.getQuestionChoices());
-        Collections.shuffle(answers);
         String correct = answers.get(question.getCorrect());
+        Collections.shuffle(answers);
         clientMainUI.addQuestion(question.getQuestionName(), answers);
+        Timer timer = new Timer();
 
-        final Timer timer = new Timer();
         timer.scheduleAtFixedRate(new TimerTask() {
             int i = 30000;
             @Override
             public void run() {
-                i-=1;
+                i-=1000;
                 if (questionAnswered) { // If statement triggered if question is answered before the timer runs out
                     timer.cancel();
                     System.out.println("Entry 1");

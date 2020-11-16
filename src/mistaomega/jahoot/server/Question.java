@@ -3,6 +3,7 @@ package mistaomega.jahoot.server;
 import java.io.Serializable;
 
 public class Question implements Serializable {
+    private static final long serialVersionUID = 123456789L;
     String QuestionName;
     String[] QuestionChoices;
     int Correct;

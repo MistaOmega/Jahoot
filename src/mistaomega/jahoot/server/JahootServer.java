@@ -148,6 +148,10 @@ public class JahootServer {
         return true;
     }
 
+    public Map<ClientHandler, Integer> getClientScores() {
+        return ClientScores;
+    }
+
     public Set<String> getUsernames() {
         return Usernames;
     }
