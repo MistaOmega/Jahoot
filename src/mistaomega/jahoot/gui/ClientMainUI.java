@@ -30,8 +30,7 @@ public class ClientMainUI {
     private int givenAnswerIndex;
     private ObjectInputStream objectIn;
 
-    public ClientMainUI(Client client, ObjectInputStream objectInputStream) {
-        objectIn = objectInputStream;
+    public ClientMainUI(Client client) {
         this.client = client;
         initListeners();
     }
@@ -52,11 +51,6 @@ public class ClientMainUI {
         frame.pack();
         frame.setSize(800, 800);
         frame.setVisible(true);
-        try {
-            client.playGame();
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-        }
     }
 
     public void setPanelColors() {
@@ -68,11 +62,9 @@ public class ClientMainUI {
         }
     }
 
-    public void addQuestion(Question question) {
+    public void addQuestion(String questionTitle, List<String> answers) {
         SwingUtilities.invokeLater(() -> {
-            tfQuestion.setText(question.getQuestionName());
-            List<String> answers = Arrays.asList(question.getQuestionChoices());
-            Collections.shuffle(answers);
+            tfQuestion.setText(questionTitle);
             btnAnswer1.setText(answers.get(0));
             btnAnswer2.setText(answers.get(1));
             btnAnswer3.setText(answers.get(2));

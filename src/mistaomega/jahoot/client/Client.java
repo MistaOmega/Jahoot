@@ -15,10 +15,11 @@ public class Client {
     private final int port;
     private final String Username;
     private final ClientConnectUI clientConnectUI;
-    ObjectOutputStream objectOut;
-    ObjectInputStream objectIn;
-    DataOutputStream out;
-    DataInputStream in;
+    private ClientMainUI clientMainUI;
+    private ObjectOutputStream objectOut;
+    private ObjectInputStream objectIn;
+    private DataOutputStream out;
+    private DataInputStream in;
     private volatile boolean GameStarted = false;
     private volatile boolean questionAnswered;
     private volatile int givenAnswerIndex;
@@ -48,6 +49,7 @@ public class Client {
             // send username
             out.writeUTF("u" + Username);
             out.flush();
+
             while (!GameStarted) {
                 out.writeUTF("g");
                 out.flush();
@@ -56,9 +58,8 @@ public class Client {
                 if (isReady) {
                     GameStarted = true;
                     System.out.println("ready to play");
-                    ClientMainUI clientMainUI = new ClientMainUI(this);
-                    clientMainUI.run(objectIn);
-
+                    clientMainUI = new ClientMainUI(this);
+                    clientMainUI.run();
                     break;
 
                 }
@@ -68,24 +69,63 @@ public class Client {
                 }
                 Thread.sleep(500);
             }
-        } catch (IOException | InterruptedException e) {
+
+            assert clientMainUI != null;
+            playGame();
+        } catch (IOException | InterruptedException | ClassNotFoundException e) {
             clientConnectUI.setConsoleOutput("Connection to server failed.");
             clientConnectUI.getBtnConnect().setEnabled(true);
             e.printStackTrace();
         }
     }
 
-    public void checkAnswer(int timeLeft, List<String> answers, String correctAnswer) throws IOException {
-        int total;
-        if (!questionAnswered) {
-            out.writeInt(0);
-        } else {
-
-            total = correctAnswer.equals(answers.get(givenAnswerIndex)) ? 1000 / (timeLeft / 1000) :
-                    100 / (timeLeft / 1000);
-            out.writeInt(total);
+    public void checkAnswer(int timeLeft, List<String> answers, String correctAnswer) {
+        try {
+            int total = 0;
+            if (!questionAnswered) {
+                out.writeInt(0);
+            } else {
+                total += correctAnswer.equals(answers.get(givenAnswerIndex)) ? 1000 / timeLeft : 100 / timeLeft;
+                out.writeInt(total);
+            }
+            playGame();
+        } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
         }
 
+    }
+
+    public void playGame() throws IOException, ClassNotFoundException {
+        questionAnswered = false;
+        Question question = (Question) objectIn.readObject();
+        List<String> answers = Arrays.asList(question.getQuestionChoices());
+        Collections.shuffle(answers);
+        String correct = answers.get(question.getCorrect());
+        clientMainUI.addQuestion(question.getQuestionName(), answers);
+
+        final Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            int i = 30000;
+            @Override
+            public void run() {
+                i-=1;
+                if (questionAnswered) { // If statement triggered if question is answered before the timer runs out
+                    timer.cancel();
+                    System.out.println("Entry 1");
+                    checkAnswer(i, answers, correct);
+                }
+                if (i < 0) { // triggered if the timer runs out
+                    timer.cancel();
+                    checkAnswer(0, answers, correct);
+                }
+            }
+        }, 0, 1000);
+
+    }
+
+    public void answerQuestion(int givenAnswerIndex){
+        this.givenAnswerIndex = givenAnswerIndex;
+        questionAnswered = true;
     }
 
     @Override

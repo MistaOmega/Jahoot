@@ -1,9 +1,15 @@
 package mistaomega.jahoot.gui;
 
+import mistaomega.jahoot.Main;
+import mistaomega.jahoot.SerializeUtils;
 import mistaomega.jahoot.server.ClientHandler;
 import mistaomega.jahoot.server.JahootServer;
+import mistaomega.jahoot.server.Question;
 
 import javax.swing.*;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.ArrayList;
 
 public class ServerGUI {
     private static JahootServer jahootServer;
@@ -12,15 +18,18 @@ public class ServerGUI {
     private JButton btnReady;
     private JButton btnStartServer;
     private JButton btnRemoveUser;
+    private JButton btnExit;
 
     public ServerGUI() {
         initListeners();
+
     }
 
     /**
      * All listeners for buttons are done here
      */
     public void initListeners() {
+        btnExit.addActionListener(e -> System.exit(0));
         btnReady.addActionListener(e -> setReadyToPlay());
         btnStartServer.addActionListener(e -> beginConnectionHandle());
         btnRemoveUser.addActionListener(e -> {
@@ -51,17 +60,47 @@ public class ServerGUI {
 
 
     public void beginConnectionHandle() {
+
+        String directory = new File("").getAbsolutePath(); // get current working directory, should make sure I can get question banks!
+        File f = new File(directory);
+        FilenameFilter textFilter = (dir, name) -> name.toLowerCase().endsWith(".qbk");
+        File[] files = f.listFiles(textFilter);
+
+        if(files.length == 0){
+            JOptionPane.showMessageDialog(mainPanel, "No question bank files can be found, please make a question bank first", "No question banks found", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        //TODO implement FileChooser
+
+
+        final JComboBox<File> combo = new JComboBox<>(files);
+        String[] options = {"OK", "Cancel"};
+        String title = "Title";
+        int selection = JOptionPane.showOptionDialog(null, combo, title,
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options,
+                options[0]);
+        // If cancel is selected
+        if(selection == 1){
+            return;
+        }
+
+        ArrayList<Question> questions = SerializeUtils.DeserializeQuestion((File) combo.getSelectedItem());
+        for (Question q:
+             questions) {
+            System.out.println(q.getQuestionName());
+        }
+
         int port;
         String portStr = JOptionPane.showInputDialog("Enter Port");
         try {
             port = Integer.parseInt(portStr);
         } catch (NumberFormatException e) {
-            JOptionPane.showConfirmDialog(mainPanel, "Port parse failed. Enter a number for the port");
+            JOptionPane.showMessageDialog(mainPanel, "Port parse failed. Enter a number for the port", "Port parse error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         new Thread(() -> {
-            jahootServer = new JahootServer(port, this); // Boot up an instance of the server here
+            jahootServer = new JahootServer(port, this, questions); // Boot up an instance of the server here
             jahootServer.run();
         }).start();
 

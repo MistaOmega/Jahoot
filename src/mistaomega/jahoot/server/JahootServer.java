@@ -5,6 +5,7 @@ import mistaomega.jahoot.gui.ServerGUI;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -21,12 +22,13 @@ public class JahootServer {
     private boolean isAcceptingConnections = true;
     private Socket socket;
     private ServerSocket serverSocket = null;
-    private List<Question> Questions;
+    private final ArrayList<Question> questions;
     private int score;
 
-    public JahootServer(int port, ServerGUI serverGUI) {
+    public JahootServer(int port, ServerGUI serverGUI, ArrayList<Question> questions) {
         this.port = port;
         this.serverGUI = serverGUI;
+        this.questions = questions;
     }
 
     public void run() {
@@ -46,7 +48,7 @@ public class JahootServer {
                 out.writeUTF("Thank you for connecting to " + socket.getLocalSocketAddress());
                 out.flush();
 
-                ClientHandler newUser = new ClientHandler(socket, this, in, out, objectIn, objectOut);
+                ClientHandler newUser = new ClientHandler(socket, this, in, out, objectIn, objectOut, questions);
                 Clients.add(newUser);
                 serverGUI.addToUsers(newUser);
                 this.Threadpool.execute(
@@ -55,8 +57,6 @@ public class JahootServer {
             } catch (IOException e) {
                 if (!isAcceptingConnections) {
                     System.out.println("Server no longer accepting connection.");
-
-
                     setupUsersForGame();
                     return;
                 }
@@ -85,10 +85,17 @@ public class JahootServer {
     }
 
     public void setReadyToPlay(boolean readyToPlay) {
+        try {
+            serverSocket.setSoTimeout(0);
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
+        isAcceptingConnections = false;
+        setupUsersForGame();
         for (ClientHandler client : Clients) {
             client.setReadyToPlay(readyToPlay);
         }
-        isAcceptingConnections = false;
+
     }
 
 
@@ -129,6 +136,16 @@ public class JahootServer {
     public void setNewClientScore(ClientHandler clientHandler, int newTotal) {
         ClientScores.remove(clientHandler);
         ClientScores.put(clientHandler, newTotal);
+    }
+
+    public boolean AllClientsResponded(){
+        for (ClientHandler client:
+             Clients) {
+            if(!client.isQuestionResponded()){
+                return false;
+            }
+        }
+        return true;
     }
 
     public Set<String> getUsernames() {

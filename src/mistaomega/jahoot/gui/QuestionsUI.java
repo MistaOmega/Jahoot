@@ -1,5 +1,6 @@
 package mistaomega.jahoot.gui;
 
+import mistaomega.jahoot.SerializeUtils;
 import mistaomega.jahoot.server.Question;
 
 import javax.swing.*;
@@ -40,22 +41,12 @@ public class QuestionsUI {
             submitQuestions();
         });
     }
-
-    public static void serializeQuestions(ArrayList<Question> questions, String filename) throws IOException {
-        FileOutputStream fos = new FileOutputStream(filename);
-        BufferedOutputStream bos = new BufferedOutputStream(fos);
-        ObjectOutputStream oos = new ObjectOutputStream(bos);
-        oos.writeObject(questions);
-        oos.close();
-    }
-
     public void addQuestion() {
         if (lstQuestions.getModel().getSize() == 0) {
             DefaultListModel<Question> listModel = new DefaultListModel<>();
             lstQuestions.setModel(listModel);
         }
         DefaultListModel<Question> listModel = (DefaultListModel<Question>) lstQuestions.getModel();
-        listModel.addElement(new Question("Hello", new String[0], 1));
 
 
         if (tfQuestionTitle.getText().isEmpty() || tfAns1.getText().isEmpty()
@@ -71,16 +62,21 @@ public class QuestionsUI {
         Choices[1] = tfAns2.getText();
         Choices[2] = tfAns3.getText();
         Choices[3] = tfAns4.getText();
-        char CorrectAnswer = 'D';
+        int CorrectAnswer = CorrectComboBox.getSelectedIndex(); // 0, 1, 2, or 3
 
         Question toAdd = new Question(QuestionName, Choices, CorrectAnswer);
         Questions.add(toAdd);
+        listModel.addElement(toAdd);
+
+        // Empty all fields after use
+        tfQuestionTitle.setText("");
+        tfAns1.setText("");
+        tfAns2.setText("");
+        tfAns3.setText("");
+        tfAns4.setText("");
+        CorrectComboBox.setSelectedIndex(0);
 
 
-    }
-
-    private void createUIComponents() {
-        // TODO: place custom component creation code here
     }
 
     public void run() {
@@ -104,11 +100,7 @@ public class QuestionsUI {
             return;
         }
 
-        try {
-            serializeQuestions(Questions, tfQuestionBankTitle.getText() + ".qbk");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        SerializeUtils.SerializeQuestion(Questions, tfQuestionBankTitle.getText() + ".qbk");
     }
 
 }

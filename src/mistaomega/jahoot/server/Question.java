@@ -2,7 +2,7 @@ package mistaomega.jahoot.server;
 
 import java.io.Serializable;
 
-public class Question implements Serializable { //TODO Implement this
+public class Question implements Serializable {
     String QuestionName;
     String[] QuestionChoices;
     int Correct;
@@ -17,7 +17,7 @@ public class Question implements Serializable { //TODO Implement this
         return Correct;
     }
 
-    public void setCorrect(char correct) {
+    public void setCorrect(int correct) {
         Correct = correct;
     }
 

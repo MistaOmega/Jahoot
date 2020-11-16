@@ -1,13 +1,15 @@
 package mistaomega.jahoot.server;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.net.Socket;
+import java.util.ArrayList;
 
 /**
  * Each client is handled (Server side) through one of these threads
  */
 public class ClientHandler implements Runnable {
-
+    private final ArrayList<Question> questions;
     private DataInputStream in;
     private final Socket socket;
     private final JahootServer jahootServer;
@@ -17,10 +19,12 @@ public class ClientHandler implements Runnable {
     private PrintWriter writer;
     private boolean readyToPlay = false;
     private String username = "";
+    private boolean questionResponded;
     volatile boolean shutdown = false;
 
 
-    public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out, ObjectInputStream objectIn, ObjectOutputStream objectOut) {
+    public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out, ObjectInputStream objectIn, ObjectOutputStream objectOut, ArrayList<Question> questions) {
+        this.questions = questions;
         this.socket = socket;
         this.jahootServer = jahootServer;
         this.in = in;
@@ -40,27 +44,30 @@ public class ClientHandler implements Runnable {
                     requestChecker();
                 }
 
-                Question q = new Question("What is the meaning of life", new String[]{"1", "2", "3", "42"}, 0);
+                for (Question question:
+                     questions) {
 
-                //foreach question in questions
-                objectOut.writeObject(q);
-                out.flush();
-                System.out.println("here");
+                    objectOut.writeObject(question);
+                    out.flush();
+                    questionResponded = false;
+                    System.out.println("here");
 
+                    int playerTotal = in.readInt(); // client answered at this point.
+                    questionResponded = true;
+                    jahootServer.setNewClientScore(this, jahootServer.getClientScore(this) + playerTotal);
+                    System.out.println(jahootServer.getClientScore(this));
 
-                int playerTotal = in.readInt();
-                jahootServer.setNewClientScore(this, jahootServer.getClientScore(this) + playerTotal);
-                System.out.println(jahootServer.getClientScore(this));
+                    //Wait for other clients to get on with answering
+                    while (!jahootServer.AllClientsResponded()) {
+                        System.out.println("waiting for other clients");
+                    }
+                }
 
-                //after receiving total
+                //Game ended here
 
             } catch (IOException e) {
                 jahootServer.removeUser(username, this);
                 System.out.println("connection closed");
-                in = null;
-                out = null;
-                objectOut = null;
-                objectIn = null;
 
             }
             finally {
@@ -104,18 +111,6 @@ public class ClientHandler implements Runnable {
     void printUsers() {
     }
 
-    void printQuestion(String Question) {
-
-    }
-
-    void sendMessage(String message) {
-        try {
-            out.writeUTF(message);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public String getUsername() {
         return username;
     }
@@ -123,5 +118,10 @@ public class ClientHandler implements Runnable {
     public synchronized void shutdown(){
         shutdown = true;
         Thread.currentThread().interrupt();
+    }
+
+
+    public boolean isQuestionResponded() {
+        return questionResponded;
     }
 }
