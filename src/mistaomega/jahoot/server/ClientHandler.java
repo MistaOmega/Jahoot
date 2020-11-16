@@ -8,15 +8,16 @@ import java.net.Socket;
  */
 public class ClientHandler implements Runnable {
 
-    private final DataInputStream in;
+    private DataInputStream in;
     private final Socket socket;
     private final JahootServer jahootServer;
-    private final DataOutputStream out;
-    private final ObjectOutputStream objectOut;
-    private final ObjectInputStream objectIn;
+    private DataOutputStream out;
+    private ObjectOutputStream objectOut;
+    private ObjectInputStream objectIn;
     private PrintWriter writer;
     private boolean readyToPlay = false;
     private String username = "";
+    volatile boolean shutdown = false;
 
 
     public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out, ObjectInputStream objectIn, ObjectOutputStream objectOut) {
@@ -30,40 +31,52 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        try {
-            while (!isReadyToPlay()) { // waiting here!
-                if (Thread.currentThread().isInterrupted()) {
-                    break;
+        while (!shutdown) {
+            try {
+                while (!isReadyToPlay()) { // waiting here!
+                    if (shutdown) {
+                        throw new IOException(); // force the client handler to quit
+                    }
+                    requestChecker();
                 }
-                requestChecker();
-            }
 
-            if(in.readInt() == 1) {
                 Question q = new Question("What is the meaning of life", new String[]{"1", "2", "3", "42"}, 0);
 
                 //foreach question in questions
                 objectOut.writeObject(q);
                 out.flush();
-
                 System.out.println("here");
+
 
                 int playerTotal = in.readInt();
                 jahootServer.setNewClientScore(this, jahootServer.getClientScore(this) + playerTotal);
                 System.out.println(jahootServer.getClientScore(this));
 
                 //after receiving total
-            }
 
-        } catch (IOException e) {
-            jahootServer.removeUser(username, this);
-            System.out.println("connection closed");
-            Thread.currentThread().interrupt();
+            } catch (IOException e) {
+                jahootServer.removeUser(username, this);
+                System.out.println("connection closed");
+                in = null;
+                out = null;
+                objectOut = null;
+                objectIn = null;
+
+            }
+            finally {
+                try {
+                    socket.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Thread.currentThread().interrupt();
+            }
         }
     }
 
-
     public void requestChecker() throws IOException {
-        String received = in.readUTF();
+        String received;
+        received = in.readUTF();
         if (received.charAt(0) == 'u') {
             System.out.println("Username attempt");
             username = received.substring(1);
@@ -101,5 +114,14 @@ public class ClientHandler implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public synchronized void shutdown(){
+        shutdown = true;
+        Thread.currentThread().interrupt();
     }
 }

@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.awt.event.WindowEvent;
 
 public class ClientConnectUI {
     private final String tfUsernameDefault;
@@ -18,16 +19,21 @@ public class ClientConnectUI {
     private JTextField tfHostname;
     private JTextField tfPort;
     private JTextArea consoleOutput;
+    private JFrame mainFrame;
 
 
     public ClientConnectUI() {
-
         tfHostnameDefault = tfHostname.getText();
         tfPortDefault = tfPort.getText();
         tfUsernameDefault = tfUsername.getText();
-        /**
-         * The following 3 focus listeners are to add a prompt text to the Textfields
-         */
+
+        initListeners();
+    }
+
+    /**
+     * listeners set here
+     */
+    public void initListeners(){
         tfUsername.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -90,8 +96,11 @@ public class ClientConnectUI {
                 return;
             }
             btnConnect.setEnabled(false);
-            Client client = new Client(tfHostname.getText(), port, tfUsername.getText(), this);
-            client.run();
+
+            new Thread(() -> {
+                Client client = new Client(tfHostname.getText(), port, tfUsername.getText(), this);
+                client.run();
+            }).start();
         });
     }
 
@@ -101,11 +110,11 @@ public class ClientConnectUI {
     }
 
     public void run() {
-        JFrame frame = new JFrame("Connect GUI");
-        frame.setContentPane(new ClientConnectUI().mainPanel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
+        mainFrame = new JFrame("Connect GUI");
+        mainFrame.setContentPane(new ClientConnectUI().mainPanel);
+        mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        mainFrame.pack();
+        mainFrame.setVisible(true);
     }
 
     public void setConsoleOutput(String message) {
@@ -124,4 +133,7 @@ public class ClientConnectUI {
         return btnConnect;
     }
 
+    public JFrame getMainFrame() {
+        return mainFrame;
+    }
 }

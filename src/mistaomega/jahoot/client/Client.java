@@ -6,6 +6,7 @@ import mistaomega.jahoot.server.Question;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -18,7 +19,6 @@ public class Client {
     ObjectInputStream objectIn;
     DataOutputStream out;
     DataInputStream in;
-    ClientMainUI clientMainUI = null;
     private volatile boolean GameStarted = false;
     private volatile boolean questionAnswered;
     private volatile int givenAnswerIndex;
@@ -49,72 +49,30 @@ public class Client {
             out.writeUTF("u" + Username);
             out.flush();
             while (!GameStarted) {
-                try {
-                    out.writeUTF("g");
-                    out.flush();
-                    if (in.readBoolean()) {
-                        out.writeInt(1);
-                        GameStarted = true;
-                        System.out.println("ready to play");
-                        clientMainUI = new ClientMainUI(this, objectIn);
-                        clientMainUI.run();
+                out.writeUTF("g");
+                out.flush();
+                boolean isReady;
+                isReady = in.readBoolean();
+                if (isReady) {
+                    GameStarted = true;
+                    System.out.println("ready to play");
+                    ClientMainUI clientMainUI = new ClientMainUI(this);
+                    clientMainUI.run(objectIn);
 
-                        break;
+                    break;
 
-                    } else {
-                        clientConnectUI.clearConsole();
-                        clientConnectUI.setConsoleOutput("Waiting");
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
-
+                else {
+                    clientConnectUI.clearConsole();
+                    clientConnectUI.setConsoleOutput("Waiting");
+                }
+                Thread.sleep(500);
             }
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             clientConnectUI.setConsoleOutput("Connection to server failed.");
+            clientConnectUI.getBtnConnect().setEnabled(true);
             e.printStackTrace();
         }
-    }
-
-    public void playGame() throws IOException, ClassNotFoundException {
-        Question question = (Question) objectIn.readObject();
-        System.out.println(question.getQuestionName());
-       clientMainUI.addQuestion(question);
-        List<String> answers = Arrays.asList(question.getQuestionChoices());
-        String correct = answers.get(question.getCorrect());
-        Collections.shuffle(answers);
-        // send here
-        final Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-            int i = 30000;
-            public void run() {
-                i -= 1;
-                if (questionAnswered) { // If statement triggered if question is answered before the timer runs out
-                    timer.cancel();
-                    System.out.println("Entry 1");
-                    try {
-                        checkAnswer(i, answers, correct);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                if (i < 0) { // triggered if the timer runs out
-                    timer.cancel();
-                    try {
-                        checkAnswer(i, answers, correct);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-
-                }
-            }
-        }, 0, 1000);
-
-    }
-
-    public void answerQuestion(int index) {
-        givenAnswerIndex = index;
-        questionAnswered = true;
     }
 
     public void checkAnswer(int timeLeft, List<String> answers, String correctAnswer) throws IOException {
@@ -123,8 +81,8 @@ public class Client {
             out.writeInt(0);
         } else {
 
-            total = correctAnswer.equals(answers.get(givenAnswerIndex)) ? 1000 - (timeLeft / 1000) :
-                    100 - (timeLeft / 1000);
+            total = correctAnswer.equals(answers.get(givenAnswerIndex)) ? 1000 / (timeLeft / 1000) :
+                    100 / (timeLeft / 1000);
             out.writeInt(total);
         }
 
