@@ -28,6 +28,7 @@ public class ClientMainUI {
     private JButton btnAnswer1;
     private JButton btnAnswer3;
     private JButton btnAnswer4;
+    private JTextField tfTimeLeft;
 
     public ClientMainUI(Client client) {
         this.client = client;
@@ -74,6 +75,10 @@ public class ClientMainUI {
             btnAnswer4.setText(answers.get(3));
         });
 
+    }
+
+    public void setTfTimeLeft(String timeLeft){
+        tfTimeLeft.setText("Time left: " + timeLeft);
     }
 
     private void createUIComponents() {

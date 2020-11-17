@@ -1,7 +1,9 @@
 package mistaomega.jahoot.server;
 
-import java.io.*;
-import java.lang.reflect.Array;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,27 +14,24 @@ import java.util.Map;
  */
 public class ClientHandler implements Runnable {
     private final ArrayList<Question> questions;
-    private DataInputStream in;
+    private final DataInputStream in;
     private final Socket socket;
     private final JahootServer jahootServer;
-    private DataOutputStream out;
-    private ObjectOutputStream objectOut;
-    private ObjectInputStream objectIn;
-    private PrintWriter writer;
+    private final DataOutputStream out;
+    private final ObjectOutputStream objectOut;
+    volatile boolean shutdown = false;
     private boolean readyToPlay = false;
     private String username = "";
     private boolean questionResponded;
-    volatile boolean shutdown = false;
 
 
-    public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out, ObjectInputStream objectIn, ObjectOutputStream objectOut, ArrayList<Question> questions) {
+    public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out, ObjectOutputStream objectOut, ArrayList<Question> questions) {
         this.questions = questions;
         this.socket = socket;
         this.jahootServer = jahootServer;
         this.in = in;
         this.out = out;
         this.objectOut = objectOut;
-        this.objectIn = objectIn;
     }
 
     @Override
@@ -46,8 +45,9 @@ public class ClientHandler implements Runnable {
                     requestChecker();
                 }
 
-                for (Question question:
-                     questions) {
+
+                for (Question question :
+                        questions) {
 
                     objectOut.writeObject(question);
                     out.flush();
@@ -70,6 +70,17 @@ public class ClientHandler implements Runnable {
 
 
                     objectOut.writeObject(stringIntegerMap);
+                    if (question == questions.get(questions.size() - 1)) { // if last question
+                        out.writeBoolean(true);
+
+                        if (jahootServer.isPlaying()) {
+                            jahootServer.setPlaying(false);
+                            jahootServer.restart();
+                            shutdown();
+                        }
+                    } else {
+                        out.writeBoolean(false);
+                    }
                 }
 
                 //Game ended here
@@ -78,8 +89,7 @@ public class ClientHandler implements Runnable {
                 jahootServer.removeUser(username, this);
                 System.out.println("connection closed");
 
-            }
-            finally {
+            } finally {
                 try {
                     socket.close();
                 } catch (IOException e) {
@@ -97,12 +107,21 @@ public class ClientHandler implements Runnable {
             System.out.println("Username attempt");
             username = received.substring(1);
             jahootServer.addUserName(received.substring(1));
-            printUsers();
         }
 
         if (received.charAt(0) == 'g') {
             System.out.println("ready check");
-            out.writeBoolean(isReadyToPlay());
+            if (isReadyToPlay()) {
+                try {
+                    Thread.sleep(5000); // Server is on a 5 second timeout, this will ensure no extra connections, and if so their client handler can catch
+                    out.writeBoolean(isReadyToPlay());
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                out.writeBoolean(isReadyToPlay());
+            }
+
             out.flush();
         }
 
@@ -117,14 +136,11 @@ public class ClientHandler implements Runnable {
         this.readyToPlay = readyToPlay;
     }
 
-    void printUsers() {
-    }
-
     public String getUsername() {
         return username;
     }
 
-    public synchronized void shutdown(){
+    public synchronized void shutdown() {
         shutdown = true;
         Thread.currentThread().interrupt();
     }
@@ -134,10 +150,10 @@ public class ClientHandler implements Runnable {
         return questionResponded;
     }
 
-    public Map<String, Integer> convertClientHandlerMapToStringMap (Map<ClientHandler, Integer>clients){
+    public Map<String, Integer> convertClientHandlerMapToStringMap(Map<ClientHandler, Integer> clients) {
         Map<String, Integer> StringScores = new HashMap<>();
-        for (ClientHandler client:
-             clients.keySet()) {
+        for (ClientHandler client :
+                clients.keySet()) {
             StringScores.put(client.getUsername(), clients.get(client));
         }
 

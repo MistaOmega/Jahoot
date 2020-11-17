@@ -3,23 +3,19 @@ package mistaomega.jahoot.client;
 import mistaomega.jahoot.gui.ClientConnectUI;
 import mistaomega.jahoot.gui.ClientMainUI;
 import mistaomega.jahoot.gui.Leaderboard;
-import mistaomega.jahoot.server.ClientHandler;
 import mistaomega.jahoot.server.Question;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Client {
     private final String hostname;
     private final int port;
     private final String Username;
     private final ClientConnectUI clientConnectUI;
-    private ClientMainUI clientMainUI;
     private final Leaderboard leaderboard;
-    private ObjectOutputStream objectOut;
+    private ClientMainUI clientMainUI;
     private ObjectInputStream objectIn;
     private DataOutputStream out;
     private DataInputStream in;
@@ -46,7 +42,6 @@ public class Client {
             System.out.println("Just connected to " + client.getRemoteSocketAddress());
             InputStream inFromServer = client.getInputStream();
             OutputStream outToServer = client.getOutputStream();
-            objectOut = new ObjectOutputStream(outToServer);
             objectIn = new ObjectInputStream(inFromServer);
             out = new DataOutputStream(outToServer);
             in = new DataInputStream(inFromServer);
@@ -68,17 +63,15 @@ public class Client {
                     clientMainUI.run();
                     break;
 
-                }
-                else {
+                } else {
                     clientConnectUI.clearConsole();
                     clientConnectUI.setConsoleOutput("Waiting");
                 }
-                Thread.sleep(500);
             }
 
             assert clientMainUI != null;
             playGame();
-        } catch (IOException | InterruptedException | ClassNotFoundException e) {
+        } catch (IOException e) {
             clientConnectUI.setConsoleOutput("Connection to server failed.");
             clientConnectUI.getBtnConnect().setEnabled(true);
             e.printStackTrace();
@@ -87,58 +80,76 @@ public class Client {
 
     @SuppressWarnings("unchecked")
     public void checkAnswer(int timeLeft, List<String> answers, String correctAnswer) {
+        System.out.println(timeLeft);
         try {
             int total = 0;
             if (!questionAnswered) {
                 out.writeInt(0);
             } else {
-                total+= correctAnswer.equals(answers.get(givenAnswerIndex)) ? 1000 * (timeLeft / 10000) : 100 * (timeLeft / 10000);
-                System.out.println("Total: "+total);
+                if (correctAnswer.equals(answers.get(givenAnswerIndex))) {
+                    total += 1000 + (10 * timeLeft); // max 1300
+                } else {
+                    total += 100 + (timeLeft); // max 130
+                }
+                System.out.println("Total: " + total);
                 out.writeInt(total);
             }
 
-            Map<String, Integer> clientScores = (Map<String, Integer>) objectIn.readObject();
+            Map<String, Integer> clientScores = (Map<String, Integer>) objectIn.readObject(); // unchecked cast present here; will be find as only object sent by client handler at this point is a map.
 
-            leaderboard.displayLatestScores(clientScores);
-            leaderboard.show();
-            Thread.sleep(5000);
-            leaderboard.hide();
-            playGame();
+            if (in.readBoolean()) {
+                leaderboard.displayLatestScores(clientScores, true);
+                leaderboard.show();
+                Thread.sleep(5000);
+                leaderboard.hide();
+            } else {
+                leaderboard.displayLatestScores(clientScores, false);
+                leaderboard.show();
+                Thread.sleep(5000);
+                leaderboard.hide();
+                playGame();
+            }
         } catch (ClassNotFoundException | IOException | InterruptedException e) {
             e.printStackTrace();
         }
 
     }
 
-    public void playGame() throws IOException, ClassNotFoundException {
-        questionAnswered = false;
-        Question question = (Question) objectIn.readObject();
-        List<String> answers = Arrays.asList(question.getQuestionChoices());
-        String correct = answers.get(question.getCorrect());
-        Collections.shuffle(answers);
-        clientMainUI.addQuestion(question.getQuestionName(), answers);
-        Timer timer = new Timer();
+    public void playGame() {
+        try {
+            questionAnswered = false;
+            Question question = (Question) objectIn.readObject();
+            List<String> answers = Arrays.asList(question.getQuestionChoices());
+            String correct = answers.get(question.getCorrect());
+            Collections.shuffle(answers);
+            clientMainUI.addQuestion(question.getQuestionName(), answers);
+            Timer timer = new Timer();
 
-        timer.scheduleAtFixedRate(new TimerTask() {
-            int i = 30000;
-            @Override
-            public void run() {
-                i-=1000;
-                if (questionAnswered) { // If statement triggered if question is answered before the timer runs out
-                    timer.cancel();
-                    System.out.println("Entry 1");
-                    checkAnswer(i, answers, correct);
+            timer.scheduleAtFixedRate(new TimerTask() {
+                int i = 30;
+
+                @Override
+                public void run() {
+                    if (questionAnswered) { // If statement triggered if question is answered before the timer runs out
+                        timer.cancel();
+                        System.out.println("Entry 1");
+                        checkAnswer(i, answers, correct);
+                    }
+                    if (i < 0) { // triggered if the timer runs out
+                        timer.cancel();
+                        checkAnswer(0, answers, correct);
+                    }
+                    i--;
+                    clientMainUI.setTfTimeLeft(String.valueOf(i));
                 }
-                if (i < 0) { // triggered if the timer runs out
-                    timer.cancel();
-                    checkAnswer(0, answers, correct);
-                }
-            }
-        }, 0, 1000);
+            }, 0, 1000);
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Error caught");
+        }
 
     }
 
-    public void answerQuestion(int givenAnswerIndex){
+    public void answerQuestion(int givenAnswerIndex) {
         this.givenAnswerIndex = givenAnswerIndex;
         questionAnswered = true;
     }

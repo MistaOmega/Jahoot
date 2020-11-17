@@ -40,8 +40,6 @@ public class Main {
                 null,
                 options,  // Button titles
                 options[0]); // default button title
-        System.out.println(option);
-
         // Option determines which window to run.
         switch (option) {
             case 0:
@@ -52,10 +50,12 @@ public class Main {
                 ClientConnectUI clientConnectUI = new ClientConnectUI();
                 clientConnectUI.run();
                 break;
-            default:
+            case 2:
                 ServerGUI serverGUI = new ServerGUI();
                 serverGUI.run();
                 break;
+            default:
+                System.exit(0);
         }
 
     }

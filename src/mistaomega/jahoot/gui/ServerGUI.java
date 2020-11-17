@@ -1,7 +1,6 @@
 package mistaomega.jahoot.gui;
 
-import mistaomega.jahoot.Main;
-import mistaomega.jahoot.SerializeUtils;
+import mistaomega.jahoot.lib.CommonUtils;
 import mistaomega.jahoot.server.ClientHandler;
 import mistaomega.jahoot.server.JahootServer;
 import mistaomega.jahoot.server.Question;
@@ -33,13 +32,14 @@ public class ServerGUI {
         btnReady.addActionListener(e -> setReadyToPlay());
         btnStartServer.addActionListener(e -> beginConnectionHandle());
         btnRemoveUser.addActionListener(e -> {
-            if(lstUsers.getModel().getSize() == 0) {
+            if (lstUsers.getModel().getSize() == 0) {
                 return;
             }
             jahootServer.removeUser(lstUsers.getSelectedValue().getUsername(), lstUsers.getSelectedValue());
             removeFromUsers(lstUsers.getSelectedValue());
         });
     }
+
     /**
      * Entry function for the UI
      */
@@ -66,7 +66,7 @@ public class ServerGUI {
         FilenameFilter textFilter = (dir, name) -> name.toLowerCase().endsWith(".qbk");
         File[] files = f.listFiles(textFilter);
 
-        if(files.length == 0){
+        if (files.length == 0) {
             JOptionPane.showMessageDialog(mainPanel, "No question bank files can be found, please make a question bank first", "No question banks found", JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -80,13 +80,14 @@ public class ServerGUI {
                 JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options,
                 options[0]);
         // If cancel is selected
-        if(selection == 1){
+        if (selection == 1) {
             return;
         }
 
-        ArrayList<Question> questions = SerializeUtils.DeserializeQuestion((File) combo.getSelectedItem());
-        for (Question q:
-             questions) {
+        ArrayList<Question> questions = CommonUtils.DeserializeQuestion((File) combo.getSelectedItem());
+        assert questions != null;
+        for (Question q :
+                questions) {
             System.out.println(q.getQuestionName());
         }
 
@@ -130,6 +131,11 @@ public class ServerGUI {
         DefaultListModel<ClientHandler> defaultListModel = (DefaultListModel<ClientHandler>) lstUsers.getModel(); // Need to cast to a parameterised version of the DefaultListModel to add later
         defaultListModel.removeElement(client);
 
+    }
+
+    public void clearAllClients() {
+        DefaultListModel<ClientHandler> defaultListModel = (DefaultListModel<ClientHandler>) lstUsers.getModel(); // Need to cast to a parameterised version of the DefaultListModel to add later
+        defaultListModel.removeAllElements();
     }
 
 }

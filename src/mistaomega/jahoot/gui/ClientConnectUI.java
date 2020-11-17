@@ -3,23 +3,19 @@ package mistaomega.jahoot.gui;
 import mistaomega.jahoot.client.Client;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
-import java.awt.event.WindowEvent;
 
 public class ClientConnectUI {
     private final String tfUsernameDefault;
     private final String tfPortDefault;
     private final String tfHostnameDefault;
     private JPanel mainPanel;
-    private JTextField tfTitle;
     private JButton btnConnect;
     private JTextField tfUsername;
     private JTextField tfHostname;
     private JTextField tfPort;
     private JTextArea consoleOutput;
-    private JFrame mainFrame;
 
 
     public ClientConnectUI() {
@@ -30,10 +26,15 @@ public class ClientConnectUI {
         initListeners();
     }
 
+    public static void main(String[] args) {
+        ClientConnectUI clientConnectUI = new ClientConnectUI();
+        clientConnectUI.run();
+    }
+
     /**
      * listeners set here
      */
-    public void initListeners(){
+    public void initListeners() {
         tfUsername.addFocusListener(new FocusAdapter() {
             @Override
             public void focusGained(FocusEvent e) {
@@ -104,16 +105,11 @@ public class ClientConnectUI {
         });
     }
 
-    public static void main(String[] args) {
-        ClientConnectUI clientConnectUI = new ClientConnectUI();
-        clientConnectUI.run();
-    }
-
     public void run() {
-        mainFrame = new JFrame("Connect GUI");
+        JFrame mainFrame = new JFrame("Connect GUI");
         mainFrame.setContentPane(new ClientConnectUI().mainPanel);
         mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        mainFrame.pack();
+        mainFrame.setSize(800, 800);
         mainFrame.setVisible(true);
     }
 
@@ -125,15 +121,8 @@ public class ClientConnectUI {
         consoleOutput.setText("");
     }
 
-    public JPanel getMainPanel() {
-        return mainPanel;
-    }
-
     public JButton getBtnConnect() {
         return btnConnect;
     }
 
-    public JFrame getMainFrame() {
-        return mainFrame;
-    }
 }

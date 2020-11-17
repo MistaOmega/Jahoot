@@ -1,14 +1,9 @@
 package mistaomega.jahoot.gui;
 
-import mistaomega.jahoot.SerializeUtils;
+import mistaomega.jahoot.lib.CommonUtils;
 import mistaomega.jahoot.server.Question;
 
 import javax.swing.*;
-import java.awt.*;
-import java.io.BufferedOutputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 
 public class QuestionsUI {
@@ -21,8 +16,7 @@ public class QuestionsUI {
     private JTextField tfAns4;
     private JButton btnAddQuestion;
     private JButton btnSubmitQuestions;
-    private JList<Question> lstQuestions; //TODO Change wildcard for question object when properly implemented
-    private JScrollPane scrollList;
+    private JList<Question> lstQuestions;
     private JTextField tfQuestionBankTitle;
     private JComboBox<String> CorrectComboBox;
 
@@ -33,14 +27,11 @@ public class QuestionsUI {
     /**
      * listeners set here
      */
-    public void initListeners(){
-        btnAddQuestion.addActionListener(e -> {
-            addQuestion();
-        });
-        btnSubmitQuestions.addActionListener(e -> {
-            submitQuestions();
-        });
+    public void initListeners() {
+        btnAddQuestion.addActionListener(e -> addQuestion());
+        btnSubmitQuestions.addActionListener(e -> submitQuestions());
     }
+
     public void addQuestion() {
         if (lstQuestions.getModel().getSize() == 0) {
             DefaultListModel<Question> listModel = new DefaultListModel<>();
@@ -100,7 +91,7 @@ public class QuestionsUI {
             return;
         }
 
-        SerializeUtils.SerializeQuestion(Questions, tfQuestionBankTitle.getText() + ".qbk");
+        CommonUtils.SerializeQuestion(Questions, tfQuestionBankTitle.getText() + ".qbk");
     }
 
 }

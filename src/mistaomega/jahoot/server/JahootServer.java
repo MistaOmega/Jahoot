@@ -2,7 +2,10 @@ package mistaomega.jahoot.server;
 
 import mistaomega.jahoot.gui.ServerGUI;
 
-import java.io.*;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
@@ -15,15 +18,14 @@ public class JahootServer {
     private final Set<String> Usernames = new HashSet<>(); // hashset of all usernames
     private final Set<ClientHandler> Clients = new HashSet<>(); // hashset of all clients
     private final Map<ClientHandler, Integer> ClientScores = new HashMap<>();
-    private final ExecutorService Threadpool =
+    private final ExecutorService ThreadPool =
             Executors.newFixedThreadPool(10);
     private final ServerGUI serverGUI;
-    protected Thread RunningThread = null;
-    private boolean isAcceptingConnections = true;
-    private Socket socket;
-    private ServerSocket serverSocket = null;
     private final ArrayList<Question> questions;
-    private int score;
+    protected Thread RunningThread = null;
+    private boolean playing;
+    private boolean isAcceptingConnections = true;
+    private ServerSocket serverSocket = null;
 
     public JahootServer(int port, ServerGUI serverGUI, ArrayList<Question> questions) {
         this.port = port;
@@ -36,22 +38,22 @@ public class JahootServer {
             this.RunningThread = Thread.currentThread();
         }
         openServerConnections();
+        isAcceptingConnections = true;
         System.out.println("Server listening on port " + port);
         while (isAcceptingConnections) {
             try {
-                socket = serverSocket.accept();
+                Socket socket = serverSocket.accept();
                 System.out.println("Just connected to " + socket.getRemoteSocketAddress());
                 DataInputStream in = new DataInputStream(socket.getInputStream());
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
-                ObjectInputStream objectIn = new ObjectInputStream(socket.getInputStream());
                 ObjectOutputStream objectOut = new ObjectOutputStream(socket.getOutputStream());
                 out.writeUTF("Thank you for connecting to " + socket.getLocalSocketAddress());
                 out.flush();
 
-                ClientHandler newUser = new ClientHandler(socket, this, in, out, objectIn, objectOut, questions);
+                ClientHandler newUser = new ClientHandler(socket, this, in, out, objectOut, questions);
                 Clients.add(newUser);
                 serverGUI.addToUsers(newUser);
-                this.Threadpool.execute(
+                this.ThreadPool.execute(
                         newUser);
 
             } catch (IOException e) {
@@ -66,10 +68,11 @@ public class JahootServer {
 
     }
 
-    public synchronized void stop() {
-        this.isAcceptingConnections = false;
+    public synchronized void restart() {
         try {
             this.serverSocket.close();
+            serverGUI.clearAllClients();
+            run();
         } catch (IOException e) {
             throw new RuntimeException("Error closing server", e);
         }
@@ -113,7 +116,7 @@ public class JahootServer {
 
     }
 
-   public void removeUser(String Username, ClientHandler client) {
+    public void removeUser(String Username, ClientHandler client) {
         client.shutdown();
         boolean removed = Usernames.remove(Username);
         if (removed) {
@@ -123,6 +126,7 @@ public class JahootServer {
     }
 
     public void setupUsersForGame() {
+        playing = true;
         for (ClientHandler client :
                 Clients) {
             ClientScores.put(client, 0);
@@ -138,10 +142,10 @@ public class JahootServer {
         ClientScores.put(clientHandler, newTotal);
     }
 
-    public boolean AllClientsResponded(){
-        for (ClientHandler client:
-             Clients) {
-            if(!client.isQuestionResponded()){
+    public boolean AllClientsResponded() {
+        for (ClientHandler client :
+                Clients) {
+            if (!client.isQuestionResponded()) {
                 return false;
             }
         }
@@ -152,11 +156,11 @@ public class JahootServer {
         return ClientScores;
     }
 
-    public Set<String> getUsernames() {
-        return Usernames;
+    public boolean isPlaying() {
+        return playing;
     }
 
-    public boolean isOtherUserConnected() {
-        return !this.Usernames.isEmpty();
+    public void setPlaying(boolean playing) {
+        this.playing = playing;
     }
 }
