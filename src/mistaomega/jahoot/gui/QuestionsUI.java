@@ -82,16 +82,17 @@ public class QuestionsUI {
     public void submitQuestions() {
 
         if (Questions.isEmpty()) {
-            JOptionPane.showConfirmDialog(mainPanel, "Question bank empty");
+            JOptionPane.showMessageDialog(mainPanel, "Question bank is empty, please add questions first", "Empty bank", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         if (tfQuestionBankTitle.getText().isEmpty()) {
-            JOptionPane.showConfirmDialog(mainPanel, "Add a title for the question bank");
+            JOptionPane.showMessageDialog(mainPanel, "You're missing a question bank title", "No title", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         CommonUtils.SerializeQuestion(Questions, tfQuestionBankTitle.getText() + ".qbk");
+        JOptionPane.showMessageDialog(mainPanel, "Question bank processed, please proceed to run the server when ready.", "Success!", JOptionPane.INFORMATION_MESSAGE);
     }
 
 }

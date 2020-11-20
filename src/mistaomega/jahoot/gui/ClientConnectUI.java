@@ -6,6 +6,11 @@ import javax.swing.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
+/**
+ * This class is the controller class for the ClientConnectUI Form
+ * @author Jack Nash
+ * @version 1.0
+ */
 public class ClientConnectUI {
     private final String tfUsernameDefault;
     private final String tfPortDefault;

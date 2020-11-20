@@ -13,7 +13,8 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class JahootServer {
+public class JahootServer implements IJahootServer{
+    //region class data
     private final int port;
     private final Set<String> Usernames = new HashSet<>(); // hashset of all usernames
     private final Set<ClientHandler> Clients = new HashSet<>(); // hashset of all clients
@@ -23,21 +24,25 @@ public class JahootServer {
     private final ServerGUI serverGUI;
     private final ArrayList<Question> questions;
     protected Thread RunningThread = null;
-    private boolean playing;
     private boolean isAcceptingConnections = true;
     private ServerSocket serverSocket = null;
+    //endregion
 
+    //region constructor(s)
     public JahootServer(int port, ServerGUI serverGUI, ArrayList<Question> questions) {
         this.port = port;
         this.serverGUI = serverGUI;
         this.questions = questions;
     }
+    //endregion
 
+    //region Overwritten methods
+    @Override
     public void run() {
         synchronized (this) {
             this.RunningThread = Thread.currentThread();
         }
-        openServerConnections();
+        serverSocket = openServerConnections(port);
         isAcceptingConnections = true;
         System.out.println("Server listening on port " + port);
         while (isAcceptingConnections) {
@@ -68,54 +73,45 @@ public class JahootServer {
 
     }
 
+    @Override
     public synchronized void restart() {
         try {
             this.serverSocket.close();
             serverGUI.clearAllClients();
+            Clients.clear();
+            ClientScores.clear();
+            Usernames.clear();
             run();
         } catch (IOException e) {
             throw new RuntimeException("Error closing server", e);
         }
     }
 
-    private void openServerConnections() {
-        try {
-            this.serverSocket = new ServerSocket(this.port);
-            serverSocket.setSoTimeout(5000);
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot open port " + port, e);
+    /**
+     * This sets all player scores to 0 before playing
+     */
+    @Override
+    public void setupUsersForGame() {
+        for (ClientHandler client :
+                Clients) {
+            ClientScores.put(client, 0);
         }
     }
-
-    public void setReadyToPlay(boolean readyToPlay) {
-        try {
-            serverSocket.setSoTimeout(0);
-        } catch (SocketException e) {
-            e.printStackTrace();
-        }
-        isAcceptingConnections = false;
-        setupUsersForGame();
-        for (ClientHandler client : Clients) {
-            client.setReadyToPlay(readyToPlay);
-        }
-
-    }
-
-
     /**
      * Add username to the usernames list
      *
      * @param Username username to add
      */
-    public void addUserName(String Username) {
+    @Override
+    public boolean checkAndAddUser(String Username) {
         if (Usernames.contains(Username)) {
-            Usernames.add(Username);
+            return false;
         }
         Usernames.add(Username);
-
-
+        return true;
     }
 
+    @Override
     public void removeUser(String Username, ClientHandler client) {
         client.shutdown();
         boolean removed = Usernames.remove(Username);
@@ -125,12 +121,16 @@ public class JahootServer {
         }
     }
 
-    public void setupUsersForGame() {
-        playing = true;
-        for (ClientHandler client :
-                Clients) {
-            ClientScores.put(client, 0);
+    //endregion
+
+    //region Getters Setters and Booleans return types
+    public void setReadyToPlay(boolean readyToPlay) {
+        isAcceptingConnections = false;
+        setupUsersForGame();
+        for (ClientHandler client : Clients) {
+            client.setReadyToPlay(readyToPlay);
         }
+
     }
 
     public int getClientScore(ClientHandler clientHandler) {
@@ -156,11 +156,14 @@ public class JahootServer {
         return ClientScores;
     }
 
-    public boolean isPlaying() {
-        return playing;
+    public boolean isClientsStillPlaying() {
+        for (ClientHandler client : Clients) {
+            if (!client.isFinishedPlaying()) {
+                return true;
+            }
+        }
+        return false;
     }
 
-    public void setPlaying(boolean playing) {
-        this.playing = playing;
-    }
+    //endregion
 }

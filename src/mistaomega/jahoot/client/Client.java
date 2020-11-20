@@ -5,9 +5,11 @@ import mistaomega.jahoot.gui.ClientMainUI;
 import mistaomega.jahoot.gui.Leaderboard;
 import mistaomega.jahoot.server.Question;
 
+import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
 import java.util.*;
+import java.util.Timer;
 
 public class Client {
     private final String hostname;
@@ -48,8 +50,7 @@ public class Client {
             System.out.println("Server says " + in.readUTF());
 
             // send username
-            out.writeUTF("u" + Username);
-            out.flush();
+            String username = processUsername(Username); // first run is the first given username
 
             while (!GameStarted) {
                 out.writeUTF("g");
@@ -152,6 +153,17 @@ public class Client {
     public void answerQuestion(int givenAnswerIndex) {
         this.givenAnswerIndex = givenAnswerIndex;
         questionAnswered = true;
+    }
+
+    public String processUsername(String username) throws IOException {
+        out.writeUTF("u" + username);
+        out.flush();
+
+        if(!in.readBoolean()){
+            String usernameNew = JOptionPane.showInputDialog("Username already exists");
+            processUsername(usernameNew);
+        }
+        return username;
     }
 
     @Override

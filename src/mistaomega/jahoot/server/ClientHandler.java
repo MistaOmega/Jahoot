@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Each client is handled (Server side) through one of these threads
+ * Each client is handled (Server side) through an instance of this class
+ * @author Jack Nash
+ * @version 1.0
  */
 public class ClientHandler implements Runnable {
     private final ArrayList<Question> questions;
@@ -23,6 +25,7 @@ public class ClientHandler implements Runnable {
     private boolean readyToPlay = false;
     private String username = "";
     private boolean questionResponded;
+    private boolean FinishedPlaying;
 
 
     public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out, ObjectOutputStream objectOut, ArrayList<Question> questions) {
@@ -65,16 +68,16 @@ public class ClientHandler implements Runnable {
                     }
 
                     //leaderboards
-                    Map<ClientHandler, Integer> clientScores = jahootServer.getClientScores();
+                    Map<ClientHandler, Integer> clientScores = jahootServer.getClientScores(); // This map needs to be converted to String as the ClientHandler isn't Serializable
                     Map<String, Integer> stringIntegerMap = convertClientHandlerMapToStringMap(clientScores);
 
 
                     objectOut.writeObject(stringIntegerMap);
                     if (question == questions.get(questions.size() - 1)) { // if last question
                         out.writeBoolean(true);
+                        FinishedPlaying = true;
 
-                        if (jahootServer.isPlaying()) {
-                            jahootServer.setPlaying(false);
+                        if(!jahootServer.isClientsStillPlaying()){
                             jahootServer.restart();
                             shutdown();
                         }
@@ -106,7 +109,8 @@ public class ClientHandler implements Runnable {
         if (received.charAt(0) == 'u') {
             System.out.println("Username attempt");
             username = received.substring(1);
-            jahootServer.addUserName(received.substring(1));
+            boolean usernameAccepted = jahootServer.checkAndAddUser(received.substring(1));
+            out.writeBoolean(usernameAccepted);
         }
 
         if (received.charAt(0) == 'g') {
@@ -145,6 +149,9 @@ public class ClientHandler implements Runnable {
         Thread.currentThread().interrupt();
     }
 
+    public boolean isFinishedPlaying() {
+        return FinishedPlaying;
+    }
 
     public boolean isQuestionResponded() {
         return questionResponded;
