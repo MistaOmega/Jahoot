@@ -5,13 +5,14 @@ import mistaomega.jahoot.client.Client;
 import javax.swing.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import java.time.LocalDateTime;
 
 /**
  * This class is the controller class for the ClientConnectUI Form
  * @author Jack Nash
  * @version 1.0
  */
-public class ClientConnectUI {
+public class ClientConnectUI extends UserInterfaceController{
     private final String tfUsernameDefault;
     private final String tfPortDefault;
     private final String tfHostnameDefault;
@@ -24,16 +25,12 @@ public class ClientConnectUI {
 
 
     public ClientConnectUI() {
+        super(new JFrame("Connect GUI"));
         tfHostnameDefault = tfHostname.getText();
         tfPortDefault = tfPort.getText();
         tfUsernameDefault = tfUsername.getText();
 
         initListeners();
-    }
-
-    public static void main(String[] args) {
-        ClientConnectUI clientConnectUI = new ClientConnectUI();
-        clientConnectUI.run();
     }
 
     /**
@@ -111,20 +108,23 @@ public class ClientConnectUI {
     }
 
     public void run() {
-        JFrame mainFrame = new JFrame("Connect GUI");
-        mainFrame.setContentPane(new ClientConnectUI().mainPanel);
-        mainFrame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        mainFrame.setSize(800, 800);
-        mainFrame.setVisible(true);
+        frame.setContentPane(mainPanel);
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.pack(); // sets minimum scale for UI, so shrinking from setSize doesn't cause elements to disappear
+        frame.setSize(800, 800);
+        frame.setVisible(true);
     }
 
     public void setConsoleOutput(String message) {
-        consoleOutput.append(message + "\n");
+        LocalDateTime now = LocalDateTime.now();
+        int hour = now.getHour();
+        int minute = now.getMinute();
+        int second = now.getSecond();
+
+        String timestamp = String.format("[%02d:%02d:%02d] ",hour, minute, second);
+        consoleOutput.append(timestamp + message + "\n");
     }
 
-    public void clearConsole() {
-        consoleOutput.setText("");
-    }
 
     public JButton getBtnConnect() {
         return btnConnect;

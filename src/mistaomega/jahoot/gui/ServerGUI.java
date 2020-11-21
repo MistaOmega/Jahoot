@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 
-public class ServerGUI {
+public class ServerGUI extends UserInterfaceController {
     private static JahootServer jahootServer;
     private JList<ClientHandler> lstUsers;
     private JPanel mainPanel;
@@ -20,6 +20,7 @@ public class ServerGUI {
     private JButton btnExit;
 
     public ServerGUI() {
+        super(new JFrame("Server GUI"));
         initListeners();
 
     }
@@ -45,7 +46,6 @@ public class ServerGUI {
      */
     public void run() {
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Server GUI");
             frame.setContentPane(new ServerGUI().mainPanel);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.pack();

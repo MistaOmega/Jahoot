@@ -6,6 +6,11 @@ import mistaomega.jahoot.gui.ServerGUI;
 
 import javax.swing.*;
 
+/**
+ * Entry class for the program
+ * @author Jack Nash
+ * @version 1.0
+ */
 public class Main {
     static JFrame frame;
 

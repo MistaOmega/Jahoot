@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Timer;
 import java.util.*;
 
-public class ClientMainUI {
+public class ClientMainUI extends UserInterfaceController{
     private final Client client;
     private ArrayList<String> colorList;
     private ArrayList<JPanel> panels;
@@ -31,6 +31,7 @@ public class ClientMainUI {
     private JTextField tfTimeLeft;
 
     public ClientMainUI(Client client) {
+        super(new JFrame("Game Interface"));
         this.client = client;
         initListeners();
         btnAnswer1.addActionListener(e -> {
@@ -49,7 +50,6 @@ public class ClientMainUI {
     }
 
     public void run() {
-        JFrame frame = new JFrame("Main GUI");
         frame.setContentPane(mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();

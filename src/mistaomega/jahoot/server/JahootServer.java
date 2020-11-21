@@ -8,12 +8,11 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class JahootServer implements IJahootServer{
+public class JahootServer implements IJahootServer {
     //region class data
     private final int port;
     private final Set<String> Usernames = new HashSet<>(); // hashset of all usernames
@@ -23,7 +22,6 @@ public class JahootServer implements IJahootServer{
             Executors.newFixedThreadPool(10);
     private final ServerGUI serverGUI;
     private final ArrayList<Question> questions;
-    protected Thread RunningThread = null;
     private boolean isAcceptingConnections = true;
     private ServerSocket serverSocket = null;
     //endregion
@@ -39,15 +37,13 @@ public class JahootServer implements IJahootServer{
     //region Overwritten methods
     @Override
     public void run() {
-        synchronized (this) {
-            this.RunningThread = Thread.currentThread();
-        }
         serverSocket = openServerConnections(port);
         isAcceptingConnections = true;
         System.out.println("Server listening on port " + port);
+        Socket socket;
         while (isAcceptingConnections) {
             try {
-                Socket socket = serverSocket.accept();
+                socket = serverSocket.accept();
                 System.out.println("Just connected to " + socket.getRemoteSocketAddress());
                 DataInputStream in = new DataInputStream(socket.getInputStream());
                 DataOutputStream out = new DataOutputStream(socket.getOutputStream());
@@ -58,8 +54,7 @@ public class JahootServer implements IJahootServer{
                 ClientHandler newUser = new ClientHandler(socket, this, in, out, objectOut, questions);
                 Clients.add(newUser);
                 serverGUI.addToUsers(newUser);
-                this.ThreadPool.execute(
-                        newUser);
+                ThreadPool.execute(newUser);
 
             } catch (IOException e) {
                 if (!isAcceptingConnections) {
@@ -97,6 +92,7 @@ public class JahootServer implements IJahootServer{
             ClientScores.put(client, 0);
         }
     }
+
     /**
      * Add username to the usernames list
      *

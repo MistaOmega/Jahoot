@@ -41,17 +41,16 @@ public class ClientHandler implements Runnable {
     public void run() {
         while (!shutdown) {
             try {
-                while (!isReadyToPlay()) { // waiting here!
+                while (!requestChecker()) { // waiting here!
                     if (shutdown) {
                         throw new IOException(); // force the client handler to quit
                     }
-                    requestChecker();
                 }
 
 
                 for (Question question :
                         questions) {
-
+                    System.out.println(this + " Outputting question bank to client");
                     objectOut.writeObject(question);
                     out.flush();
                     questionResponded = false;
@@ -62,11 +61,9 @@ public class ClientHandler implements Runnable {
                     jahootServer.setNewClientScore(this, jahootServer.getClientScore(this) + playerTotal);
                     System.out.println(jahootServer.getClientScore(this));
 
-                    //Wait for other clients to get on with answering
+                    //Wait for other clients to get on with answering, currently blank, will have to change to a notify system at some point
                     while (!jahootServer.AllClientsResponded()) {
-                        System.out.println("waiting for other clients");
                     }
-
                     //leaderboards
                     Map<ClientHandler, Integer> clientScores = jahootServer.getClientScores(); // This map needs to be converted to String as the ClientHandler isn't Serializable
                     Map<String, Integer> stringIntegerMap = convertClientHandlerMapToStringMap(clientScores);
@@ -103,7 +100,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void requestChecker() throws IOException {
+    public boolean requestChecker() throws IOException {
         String received;
         received = in.readUTF();
         if (received.charAt(0) == 'u') {
@@ -114,22 +111,25 @@ public class ClientHandler implements Runnable {
         }
 
         if (received.charAt(0) == 'g') {
-            System.out.println("ready check");
             if (isReadyToPlay()) {
                 try {
-                    Thread.sleep(5000); // Server is on a 5 second timeout, this will ensure no extra connections, and if so their client handler can catch
-                    out.writeBoolean(isReadyToPlay());
+                    out.writeBoolean(true);
+                    out.flush();
+                    Thread.sleep(5000); // Server is on a 5 second timeout, this will ensure if someone else connects, they can also play
+                    out.writeBoolean(true);
+                    out.flush();
+                    return true;
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             } else {
-                out.writeBoolean(isReadyToPlay());
+                out.writeBoolean(false);
+                out.flush();
             }
-
-            out.flush();
         }
 
 
+        return false;
     }
 
     public boolean isReadyToPlay() {
@@ -157,7 +157,7 @@ public class ClientHandler implements Runnable {
         return questionResponded;
     }
 
-    public Map<String, Integer> convertClientHandlerMapToStringMap(Map<ClientHandler, Integer> clients) {
+    public synchronized Map<String, Integer> convertClientHandlerMapToStringMap(Map<ClientHandler, Integer> clients) {
         Map<String, Integer> StringScores = new HashMap<>();
         for (ClientHandler client :
                 clients.keySet()) {
@@ -165,5 +165,10 @@ public class ClientHandler implements Runnable {
         }
 
         return StringScores;
+    }
+
+    @Override
+    public String toString() {
+        return username;
     }
 }

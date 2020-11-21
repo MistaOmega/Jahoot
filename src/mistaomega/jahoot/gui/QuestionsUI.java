@@ -6,7 +6,7 @@ import mistaomega.jahoot.server.Question;
 import javax.swing.*;
 import java.util.ArrayList;
 
-public class QuestionsUI {
+public class QuestionsUI extends UserInterfaceController{
     private final ArrayList<Question> Questions = new ArrayList<>();
     private JPanel mainPanel;
     private JTextField tfQuestionTitle;
@@ -21,6 +21,7 @@ public class QuestionsUI {
     private JComboBox<String> CorrectComboBox;
 
     public QuestionsUI() {
+        super(new JFrame("Questions Interface"));
         initListeners();
     }
 
@@ -71,7 +72,6 @@ public class QuestionsUI {
     }
 
     public void run() {
-        JFrame frame = new JFrame("Questions GUI");
         frame.setContentPane(new QuestionsUI().mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();

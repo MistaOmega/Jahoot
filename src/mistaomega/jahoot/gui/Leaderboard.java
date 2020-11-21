@@ -4,29 +4,35 @@ import mistaomega.jahoot.lib.CommonUtils;
 import mistaomega.jahoot.server.ClientHandler;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-public class Leaderboard {
+public class Leaderboard extends UserInterfaceController{
     private JList<String> scoresList;
     private JPanel mainPanel;
     private JTextField LEADERBOARDSTextField;
-    private JFrame frame;
 
+    public Leaderboard() {
+        super(new JFrame("Leaderboard"));
+    }
 
     /**
      * Entry function for the UI
      */
     public void run() {
         SwingUtilities.invokeLater(() -> {
-            frame = new JFrame("Leaderboard");
             frame.setContentPane(mainPanel);
             frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
             frame.pack();
             frame.setSize(1000, 1000);
             frame.setVisible(false);
         });
+
+        scoresList.setBackground(Color.decode(JahootColors.JAHOOTBLUE.getHex()));
     }
 
     public void displayLatestScores(Map<String, Integer> clientScores, boolean winning) {
@@ -42,8 +48,13 @@ public class Leaderboard {
         renderer.setHorizontalAlignment(SwingConstants.CENTER);
 
         int highScore = 0;
+        Map<String, Integer> result = clientScores.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+
         for (String username :
-                clientScores.keySet()) {
+                result.keySet()) {
             if(winning){
                 if(clientScores.get(username) > highScore){
                     highScore = clientScores.get(username);

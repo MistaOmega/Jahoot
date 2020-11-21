@@ -14,10 +14,11 @@ import java.util.Timer;
 public class Client {
     private final String hostname;
     private final int port;
-    private final String Username;
+    private String Username;
     private final ClientConnectUI clientConnectUI;
     private final Leaderboard leaderboard;
     private ClientMainUI clientMainUI;
+    private Socket clientSocket;
     private ObjectInputStream objectIn;
     private DataOutputStream out;
     private DataInputStream in;
@@ -37,51 +38,49 @@ public class Client {
 
     public void run() {
         try {
-
             System.out.println("Connecting to " + hostname + " on port " + port);
-            Socket client = new Socket(hostname, port);
+            clientSocket = new Socket(hostname, port);
 
-            System.out.println("Just connected to " + client.getRemoteSocketAddress());
-            InputStream inFromServer = client.getInputStream();
-            OutputStream outToServer = client.getOutputStream();
+            System.out.println("Just connected to " + clientSocket.getRemoteSocketAddress());
+            InputStream inFromServer = clientSocket.getInputStream();
+            OutputStream outToServer = clientSocket.getOutputStream();
             objectIn = new ObjectInputStream(inFromServer);
             out = new DataOutputStream(outToServer);
             in = new DataInputStream(inFromServer);
             System.out.println("Server says " + in.readUTF());
 
             // send username
-            String username = processUsername(Username); // first run is the first given username
-
-            while (!GameStarted) {
+            Username = processUsername(Username); // Using the Username the client sent through from the connect ui first.
+            clientConnectUI.setConsoleOutput("Welcome " + Username + " waiting for game to start");
+            while (!GameStarted) { // this while loop will run so long as the server host hasn't selected play game
                 out.writeUTF("g");
                 out.flush();
-                boolean isReady;
-                isReady = in.readBoolean();
-                if (isReady) {
-                    GameStarted = true;
-                    System.out.println("ready to play");
-                    clientMainUI = new ClientMainUI(this);
-                    clientMainUI.run();
+                if (in.readBoolean()) {
                     break;
-
-                } else {
-                    clientConnectUI.clearConsole();
-                    clientConnectUI.setConsoleOutput("Waiting");
                 }
             }
-
+            clientConnectUI.setConsoleOutput("Game will be starting in 5 seconds, please wait for the question to appear");
+            Thread.sleep(5000); // keep up with ClientHandler
+            System.out.println(in.readBoolean());
+            clientConnectUI.hide();
+            GameStarted = true;
+            clientMainUI = new ClientMainUI(this);
+            clientMainUI.run();
             assert clientMainUI != null;
             playGame();
-        } catch (IOException e) {
+        } catch (IOException | InterruptedException e) {
             clientConnectUI.setConsoleOutput("Connection to server failed.");
             clientConnectUI.getBtnConnect().setEnabled(true);
-            e.printStackTrace();
+            try {
+                clientSocket.close();
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         }
     }
 
     @SuppressWarnings("unchecked")
     public void checkAnswer(int timeLeft, List<String> answers, String correctAnswer) {
-        System.out.println(timeLeft);
         try {
             int total = 0;
             if (!questionAnswered) {
@@ -92,7 +91,6 @@ public class Client {
                 } else {
                     total += 100 + (timeLeft); // max 130
                 }
-                System.out.println("Total: " + total);
                 out.writeInt(total);
             }
 
@@ -103,6 +101,11 @@ public class Client {
                 leaderboard.show();
                 Thread.sleep(5000);
                 leaderboard.hide();
+
+                clientConnectUI.show();
+                clientConnectUI.setConsoleOutput("Game complete, shutting down client, you may reconnect using the connect UI when ready!");
+                clientConnectUI.getBtnConnect().setVisible(true);
+                throw new IOException("Game complete, shutting down client, you may reconnect using the connect UI when ready!");
             } else {
                 leaderboard.displayLatestScores(clientScores, false);
                 leaderboard.show();
@@ -146,6 +149,7 @@ public class Client {
             }, 0, 1000);
         } catch (IOException | ClassNotFoundException e) {
             System.out.println("Error caught");
+            e.printStackTrace();
         }
 
     }
