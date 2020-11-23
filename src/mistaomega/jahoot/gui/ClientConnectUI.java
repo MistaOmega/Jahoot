@@ -9,10 +9,11 @@ import java.time.LocalDateTime;
 
 /**
  * This class is the controller class for the ClientConnectUI Form
+ *
  * @author Jack Nash
  * @version 1.0
  */
-public class ClientConnectUI extends UserInterfaceController{
+public class ClientConnectUI extends UserInterfaceControllerClass {
     private final String tfUsernameDefault;
     private final String tfPortDefault;
     private final String tfHostnameDefault;
@@ -121,7 +122,7 @@ public class ClientConnectUI extends UserInterfaceController{
         int minute = now.getMinute();
         int second = now.getSecond();
 
-        String timestamp = String.format("[%02d:%02d:%02d] ",hour, minute, second);
+        String timestamp = String.format("[%02d:%02d:%02d] ", hour, minute, second);
         consoleOutput.append(timestamp + message + "\n");
     }
 

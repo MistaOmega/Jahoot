@@ -8,15 +8,15 @@ import mistaomega.jahoot.server.Question;
 import javax.swing.*;
 import java.io.*;
 import java.net.Socket;
-import java.util.*;
 import java.util.Timer;
+import java.util.*;
 
-public class Client {
+public class Client implements iClient {
     private final String hostname;
     private final int port;
-    private String Username;
     private final ClientConnectUI clientConnectUI;
     private final Leaderboard leaderboard;
+    private String Username;
     private ClientMainUI clientMainUI;
     private Socket clientSocket;
     private ObjectInputStream objectIn;
@@ -36,8 +36,17 @@ public class Client {
         leaderboard.run();
     }
 
+    /**
+     * This is the entry function for the client and is reponsible for the following:
+     * Connect to the client handler through a socket
+     * send client username to server and await response
+     * wait for game start to be called
+     * begin the game on the client end
+     */
+    @Override
     public void run() {
         try {
+            // setup connection
             System.out.println("Connecting to " + hostname + " on port " + port);
             clientSocket = new Socket(hostname, port);
 
@@ -52,6 +61,8 @@ public class Client {
             // send username
             Username = processUsername(Username); // Using the Username the client sent through from the connect ui first.
             clientConnectUI.setConsoleOutput("Welcome " + Username + " waiting for game to start");
+
+            //wait for game start
             while (!GameStarted) { // this while loop will run so long as the server host hasn't selected play game
                 out.writeUTF("g");
                 out.flush();
@@ -59,6 +70,8 @@ public class Client {
                     break;
                 }
             }
+
+            //prepare clientMainUI and run the game
             clientConnectUI.setConsoleOutput("Game will be starting in 5 seconds, please wait for the question to appear");
             Thread.sleep(5000); // keep up with ClientHandler
             System.out.println(in.readBoolean());
@@ -79,6 +92,14 @@ public class Client {
         }
     }
 
+
+    /**
+     * Responsible for verifying and calculating given answers
+     *
+     * @param timeLeft      how much time was left for the client to answer
+     * @param answers       potential answers
+     * @param correctAnswer the correct answer
+     */
     @SuppressWarnings("unchecked")
     public void checkAnswer(int timeLeft, List<String> answers, String correctAnswer) {
         try {
@@ -86,16 +107,17 @@ public class Client {
             if (!questionAnswered) {
                 out.writeInt(0);
             } else {
-                if (correctAnswer.equals(answers.get(givenAnswerIndex))) {
+                if (correctAnswer.equals(answers.get(givenAnswerIndex))) { // givenAnswerIndex is a class-wide value
                     total += 1000 + (10 * timeLeft); // max 1300
                 } else {
                     total += 100 + (timeLeft); // max 130
                 }
-                out.writeInt(total);
+                out.writeInt(total); // send to clientHandler for processing
             }
 
             Map<String, Integer> clientScores = (Map<String, Integer>) objectIn.readObject(); // unchecked cast present here; will be find as only object sent by client handler at this point is a map.
 
+            // Run if the game is finished (last question has just been answered)
             if (in.readBoolean()) {
                 leaderboard.displayLatestScores(clientScores, true);
                 leaderboard.show();
@@ -106,7 +128,8 @@ public class Client {
                 clientConnectUI.setConsoleOutput("Game complete, shutting down client, you may reconnect using the connect UI when ready!");
                 clientConnectUI.getBtnConnect().setVisible(true);
                 throw new IOException("Game complete, shutting down client, you may reconnect using the connect UI when ready!");
-            } else {
+
+            } else { // this runs for all other answers
                 leaderboard.displayLatestScores(clientScores, false);
                 leaderboard.show();
                 Thread.sleep(5000);
@@ -119,6 +142,15 @@ public class Client {
 
     }
 
+    /**
+     * This is the function called each time there is a question to respond to, it is responsible for:
+     * Gathering the current question
+     * Getting information from the given question object such as the answers and correct answer
+     * Setting up the timer for the user
+     * Waiting until answer is given
+     * Sending data to answer checker
+     */
+    @Override
     public void playGame() {
         try {
             questionAnswered = false;
@@ -154,21 +186,36 @@ public class Client {
 
     }
 
+
+    /**
+     * Called by the clientMainUI when a question is answered
+     *
+     * @param givenAnswerIndex index for the given answer
+     */
+    @Override
     public void answerQuestion(int givenAnswerIndex) {
         this.givenAnswerIndex = givenAnswerIndex;
         questionAnswered = true;
     }
 
+    /**
+     * Handles the verification of a new username
+     *
+     * @param username username to verify
+     * @return username when verified by server
+     * @throws IOException Throws when issues with the streams are present
+     */
     public String processUsername(String username) throws IOException {
         out.writeUTF("u" + username);
         out.flush();
 
-        if(!in.readBoolean()){
+        if (!in.readBoolean()) {
             String usernameNew = JOptionPane.showInputDialog("Username already exists");
             processUsername(usernameNew);
         }
         return username;
     }
+
 
     @Override
     public String toString() {

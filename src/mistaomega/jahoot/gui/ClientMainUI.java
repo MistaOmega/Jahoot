@@ -1,19 +1,15 @@
 package mistaomega.jahoot.gui;
 
 import mistaomega.jahoot.client.Client;
-import mistaomega.jahoot.server.Question;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Timer;
-import java.util.*;
+import java.util.Random;
 
-public class ClientMainUI extends UserInterfaceController{
+public class ClientMainUI extends UserInterfaceControllerClass {
     private final Client client;
     private ArrayList<String> colorList;
     private ArrayList<JPanel> panels;
@@ -77,7 +73,7 @@ public class ClientMainUI extends UserInterfaceController{
 
     }
 
-    public void setTfTimeLeft(String timeLeft){
+    public void setTfTimeLeft(String timeLeft) {
         tfTimeLeft.setText("Time left: " + timeLeft);
     }
 
@@ -96,7 +92,6 @@ public class ClientMainUI extends UserInterfaceController{
         setPanelColors();
 
     }
-
 
 
 }

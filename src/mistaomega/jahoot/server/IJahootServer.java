@@ -5,11 +5,12 @@ import java.net.ServerSocket;
 
 /**
  * Interface for the JahootServer class, for expansion purposes
+ *
  * @author Jack Nash
  * @version 0.1
  */
 public interface IJahootServer {
-    default ServerSocket openServerConnections(int port){
+    default ServerSocket openServerConnections(int port) {
         ServerSocket serverSocket;
         try {
             serverSocket = new ServerSocket(port);
@@ -19,9 +20,14 @@ public interface IJahootServer {
         }
         return serverSocket;
     }
+
     void run();
+
     void restart();
+
     void setupUsersForGame();
+
     boolean checkAndAddUser(String username);
+
     void removeUser(String username, ClientHandler clientHandler);
 }

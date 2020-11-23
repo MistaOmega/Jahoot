@@ -1,20 +1,16 @@
 package mistaomega.jahoot.gui;
 
 import mistaomega.jahoot.lib.CommonUtils;
-import mistaomega.jahoot.server.ClientHandler;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class Leaderboard extends UserInterfaceController{
+public class Leaderboard extends UserInterfaceControllerClass {
     private JList<String> scoresList;
     private JPanel mainPanel;
-    private JTextField LEADERBOARDSTextField;
 
     public Leaderboard() {
         super(new JFrame("Leaderboard"));
@@ -23,6 +19,7 @@ public class Leaderboard extends UserInterfaceController{
     /**
      * Entry function for the UI
      */
+    @Override
     public void run() {
         SwingUtilities.invokeLater(() -> {
             frame.setContentPane(mainPanel);
@@ -53,32 +50,23 @@ public class Leaderboard extends UserInterfaceController{
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
-        for (String username :
-                result.keySet()) {
-            if(winning){
-                if(clientScores.get(username) > highScore){
-                    highScore = clientScores.get(username);
-                }
-            }
+
+        for (String username : clientScores.keySet()) {
+//            if (winning) {
+//                if (clientScores.get(username) > highScore) {
+//                    highScore = clientScores.get(username);
+//                }
+//            }
+
             listModel.addElement(String.format("%-32s%5s", username, clientScores.get(username)));
         }
-        if(winning){
+        if (winning) {
             System.out.println("Winners are: ");
-            for (Object user:
-                 CommonUtils.findKeyFromValue(clientScores, highScore)) {
+            for (Object user :
+                    CommonUtils.findKeyFromValue(clientScores, highScore)) {
                 System.out.println(user.toString());
             }
         }
     }
 
-
-
-
-    public void show(){
-        frame.setVisible(true);
-    }
-
-    public void hide(){
-        frame.setVisible(false);
-    }
 }

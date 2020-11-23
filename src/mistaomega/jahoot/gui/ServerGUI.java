@@ -10,7 +10,7 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 
-public class ServerGUI extends UserInterfaceController {
+public class ServerGUI extends UserInterfaceControllerClass {
     private static JahootServer jahootServer;
     private JList<ClientHandler> lstUsers;
     private JPanel mainPanel;

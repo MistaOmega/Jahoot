@@ -12,6 +12,17 @@ import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * This class was written with the help of the following resource:
+ * http://tutorials.jenkov.com/java-multithreaded-servers/thread-pooled-server.html
+ * Code was not used in verbatim, more used to help guide me in the right direction
+ *
+ * This code is for the primary server, this server is responsible for handling connection requests
+ * and for storing instances of each ClientHandler for later use.
+ * It, as the central system is also responsible for broadcasting changes in state, such as the game starting
+ * @author Jack Nash
+ * @version 1.0
+ */
 public class JahootServer implements IJahootServer {
     //region class data
     private final int port;
@@ -37,6 +48,7 @@ public class JahootServer implements IJahootServer {
     //region Overwritten methods
     @Override
     public void run() {
+
         serverSocket = openServerConnections(port);
         isAcceptingConnections = true;
         System.out.println("Server listening on port " + port);

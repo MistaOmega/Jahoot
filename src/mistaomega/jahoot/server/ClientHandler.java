@@ -11,6 +11,7 @@ import java.util.Map;
 
 /**
  * Each client is handled (Server side) through an instance of this class
+ *
  * @author Jack Nash
  * @version 1.0
  */
@@ -28,6 +29,15 @@ public class ClientHandler implements Runnable {
     private boolean FinishedPlaying;
 
 
+    /**
+     * default constructor
+     * @param socket client side socket
+     * @param jahootServer reference to the main server
+     * @param in input stream for data
+     * @param out output stream for data
+     * @param objectOut output stream for handling serializable objects
+     * @param questions the arraylist of questions that will be iterated through
+     */
     public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out, ObjectOutputStream objectOut, ArrayList<Question> questions) {
         this.questions = questions;
         this.socket = socket;
@@ -74,7 +84,7 @@ public class ClientHandler implements Runnable {
                         out.writeBoolean(true);
                         FinishedPlaying = true;
 
-                        if(!jahootServer.isClientsStillPlaying()){
+                        if (!jahootServer.isClientsStillPlaying()) {
                             jahootServer.restart();
                             shutdown();
                         }

@@ -8,6 +8,7 @@ import javax.swing.*;
 
 /**
  * Entry class for the program
+ *
  * @author Jack Nash
  * @version 1.0
  */
