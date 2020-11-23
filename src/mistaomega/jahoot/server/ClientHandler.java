@@ -73,11 +73,10 @@ public class ClientHandler implements Runnable {
 
                     //Wait for other clients to get on with answering, currently blank, will have to change to a notify system at some point
                     while (!jahootServer.AllClientsResponded()) {
-                        System.out.println("Waiting");
                     }
                     //leaderboards
                     Map<ClientHandler, Integer> clientScores = jahootServer.getClientScores(); // This map needs to be converted to String as the ClientHandler isn't Serializable
-                    Map<String, Integer> stringIntegerMap = convertClientHandlerMapToStringMap(clientScores);
+                    Map<String, Integer> stringIntegerMap = jahootServer.convertClientHandlerMapToStringMap(clientScores);
 
 
                     objectOut.writeObject(stringIntegerMap);
@@ -168,15 +167,6 @@ public class ClientHandler implements Runnable {
         return questionResponded;
     }
 
-    public synchronized Map<String, Integer> convertClientHandlerMapToStringMap(Map<ClientHandler, Integer> clients) {
-        Map<String, Integer> StringScores = new HashMap<>();
-        for (ClientHandler client :
-                clients.keySet()) {
-            StringScores.put(client.getUsername(), clients.get(client));
-        }
-
-        return StringScores;
-    }
 
     @Override
     public String toString() {

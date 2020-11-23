@@ -154,6 +154,7 @@ public class JahootServer implements IJahootServer {
         for (ClientHandler client :
                 Clients) {
             if (!client.isQuestionResponded()) {
+                System.out.println(client + " Not responded yet");
                 return false;
             }
         }
@@ -171,6 +172,16 @@ public class JahootServer implements IJahootServer {
             }
         }
         return false;
+    }
+
+    public synchronized Map<String, Integer> convertClientHandlerMapToStringMap(Map<ClientHandler, Integer> clients) {
+        Map<String, Integer> StringScores = new HashMap<>();
+        for (ClientHandler client :
+                clients.keySet()) {
+            StringScores.put(client.getUsername(), clients.get(client));
+        }
+
+        return StringScores;
     }
 
     //endregion
