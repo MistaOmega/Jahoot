@@ -51,21 +51,23 @@ public class Leaderboard extends UserInterfaceControllerClass {
                         (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
 
-        for (String username : clientScores.keySet()) {
-//            if (winning) {
-//                if (clientScores.get(username) > highScore) {
-//                    highScore = clientScores.get(username);
-//                }
-//            }
+        for (String username : result.keySet()) {
+            if (winning) {
+                if (result.get(username) > highScore) {
+                    highScore = result.get(username);
+                }
+            }
 
-            listModel.addElement(String.format("%-32s%5s", username, clientScores.get(username)));
+            listModel.addElement(String.format("%-32s%5s", username, result.get(username)));
         }
         if (winning) {
-            System.out.println("Winners are: ");
+            StringBuilder winners = new StringBuilder();
             for (Object user :
                     CommonUtils.findKeyFromValue(clientScores, highScore)) {
-                System.out.println(user.toString());
+               winners.append(user.toString()).append(" ");
             }
+
+            JOptionPane.showMessageDialog(mainPanel, "Winners are: "+ winners.toString(), "Game over!", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 

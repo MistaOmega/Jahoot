@@ -73,6 +73,7 @@ public class ClientHandler implements Runnable {
 
                     //Wait for other clients to get on with answering, currently blank, will have to change to a notify system at some point
                     while (!jahootServer.AllClientsResponded()) {
+                        System.out.println("Waiting");
                     }
                     //leaderboards
                     Map<ClientHandler, Integer> clientScores = jahootServer.getClientScores(); // This map needs to be converted to String as the ClientHandler isn't Serializable
