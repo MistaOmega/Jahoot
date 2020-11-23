@@ -116,7 +116,7 @@ public class Client implements iClient {
             }
 
             Map<String, Integer> clientScores = (Map<String, Integer>) objectIn.readObject(); // unchecked cast present here; will be find as only object sent by client handler at this point is a map.
-
+            clientMainUI.hide();
             // Run if the game is finished (last question has just been answered)
             if (in.readBoolean()) {
                 leaderboard.displayLatestScores(clientScores, true);
@@ -134,6 +134,7 @@ public class Client implements iClient {
                 leaderboard.show();
                 Thread.sleep(5000);
                 leaderboard.hide();
+                clientMainUI.show();
                 playGame();
             }
         } catch (ClassNotFoundException | IOException | InterruptedException e) {
