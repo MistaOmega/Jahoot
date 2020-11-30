@@ -10,21 +10,28 @@ import javax.swing.*;
 public abstract class UserInterfaceControllerClass implements IUI {
     JFrame frame;
 
+    /**
+     * Constructor
+     * @param frame Instance of a JFrame for the main window
+     */
     public UserInterfaceControllerClass(JFrame frame) {
         this.frame = frame;
     }
 
     public abstract void run();
 
+    /**
+     * Shows the window
+     */
     public void show() {
         frame.setVisible(true);
     }
 
+    /**
+     * Hides the window
+     */
     public void hide() {
         frame.setVisible(false);
     }
 
-    public JFrame getFrame() {
-        return frame;
-    }
 }

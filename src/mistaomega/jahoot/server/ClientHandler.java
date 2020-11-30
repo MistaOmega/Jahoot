@@ -47,6 +47,14 @@ public class ClientHandler implements Runnable {
         this.objectOut = objectOut;
     }
 
+    /**
+     * Entry function
+     * This function is reponsible for:
+     * Checking for requests from the client.
+     * Sending questions to the client.
+     * Waiting for client responses.
+     * Gathering scores from the central server and sending them to the client.
+     */
     @Override
     public void run() {
         while (!shutdown) {
@@ -71,8 +79,9 @@ public class ClientHandler implements Runnable {
                     jahootServer.setNewClientScore(this, jahootServer.getClientScore(this) + playerTotal);
                     System.out.println(jahootServer.getClientScore(this));
 
-                    //Wait for other clients to get on with answering, currently blank, will have to change to a notify system at some point
+                    //Wait for other clients to get on with answering
                     while (!jahootServer.AllClientsResponded()) {
+
                     }
                     //leaderboards
                     Map<ClientHandler, Integer> clientScores = jahootServer.getClientScores(); // This map needs to be converted to String as the ClientHandler isn't Serializable
@@ -110,6 +119,11 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Checks for requests
+     * @return If the game is ready to start
+     * @throws IOException Throws if there is an error in sending or reading from data streams
+     */
     public boolean requestChecker() throws IOException {
         String received;
         received = in.readUTF();
@@ -142,27 +156,50 @@ public class ClientHandler implements Runnable {
         return false;
     }
 
+    /**
+     *
+     * @return if the game is ready to begin
+     */
     public boolean isReadyToPlay() {
         return readyToPlay;
     }
 
+    /**
+     * Sets the game ready to play
+     * @param readyToPlay true if game is ready
+     */
     public void setReadyToPlay(boolean readyToPlay) {
         this.readyToPlay = readyToPlay;
     }
 
+    /**
+     *
+     * @return Username
+     */
     public String getUsername() {
         return username;
     }
 
+    /**
+     * Stops the client handler
+     */
     public synchronized void shutdown() {
         shutdown = true;
         Thread.currentThread().interrupt();
     }
 
+    /**
+     *
+     * @return True if the game is over
+     */
     public boolean isFinishedPlaying() {
         return FinishedPlaying;
     }
 
+    /**
+     *
+     * @return True if the client has responded
+     */
     public boolean isQuestionResponded() {
         return questionResponded;
     }

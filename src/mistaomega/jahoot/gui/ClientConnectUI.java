@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 /**
  * This class is the controller class for the ClientConnectUI Form
- *
+ * This is what the user uses to choose what server to connect to
  * @author Jack Nash
  * @version 1.0
  */
@@ -24,7 +24,9 @@ public class ClientConnectUI extends UserInterfaceControllerClass {
     private JTextField tfPort;
     private JTextArea consoleOutput;
 
-
+    /**
+     * Constructor
+     */
     public ClientConnectUI() {
         super(new JFrame("Connect GUI"));
         tfHostnameDefault = tfHostname.getText();
@@ -108,6 +110,9 @@ public class ClientConnectUI extends UserInterfaceControllerClass {
         });
     }
 
+    /**
+     * Entry function
+     */
     public void run() {
         frame.setContentPane(mainPanel);
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -116,6 +121,10 @@ public class ClientConnectUI extends UserInterfaceControllerClass {
         frame.setVisible(true);
     }
 
+    /**
+     * Adds the given string to the console output
+     * @param message message to add to console output
+     */
     public void setConsoleOutput(String message) {
         LocalDateTime now = LocalDateTime.now();
         int hour = now.getHour();
@@ -126,7 +135,9 @@ public class ClientConnectUI extends UserInterfaceControllerClass {
         consoleOutput.append(timestamp + message + "\n");
     }
 
-
+    /**
+     * @return The connect JButton
+     */
     public JButton getBtnConnect() {
         return btnConnect;
     }

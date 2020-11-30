@@ -10,6 +10,12 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 
+/**
+ * This is the controller for the ServerGUI form
+ * It is responsible for handling the creation of server instances.
+ * @author Jack Nash
+ * @version 1.0
+ */
 public class ServerGUI extends UserInterfaceControllerClass {
     private static JahootServer jahootServer;
     private JList<ClientHandler> lstUsers;
@@ -126,7 +132,7 @@ public class ServerGUI extends UserInterfaceControllerClass {
     }
 
     /**
-     * This function will remove the given clienthandler from the clients' list
+     * This function will remove the given client handler from the clients' list
      *
      * @param client ClientHandler to remove
      */

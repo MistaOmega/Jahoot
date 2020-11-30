@@ -46,6 +46,13 @@ public class JahootServer implements IJahootServer {
     //endregion
 
     //region Overwritten methods
+
+    /**
+     * Entry function
+     * This function is reponsible for:
+     * Listening for connection attempts
+     * Making and storing instances of client handlers
+     */
     @Override
     public void run() {
 
@@ -80,6 +87,9 @@ public class JahootServer implements IJahootServer {
 
     }
 
+    /**
+     * Restarts the server
+     */
     @Override
     public synchronized void restart() {
         try {
@@ -119,6 +129,11 @@ public class JahootServer implements IJahootServer {
         return true;
     }
 
+    /**
+     * Removes a user
+     * @param Username Username to remove
+     * @param client ClientHandler instance to remove
+     */
     @Override
     public void removeUser(String Username, ClientHandler client) {
         client.shutdown();
@@ -141,15 +156,29 @@ public class JahootServer implements IJahootServer {
 
     }
 
+    /**
+     *
+     * @param clientHandler ClientHandler to get the score from
+     * @return score linked to ClientHandler
+     */
     public int getClientScore(ClientHandler clientHandler) {
         return ClientScores.get(clientHandler);
     }
 
+    /**
+     * Sets new score for the client
+     * @param clientHandler ClientHandler instance to change score of
+     * @param newTotal New score
+     */
     public void setNewClientScore(ClientHandler clientHandler, int newTotal) {
         ClientScores.remove(clientHandler);
         ClientScores.put(clientHandler, newTotal);
     }
 
+    /**
+     * Iterates through each ClientHandler to see if the question has been responded to
+     * @return true if all clients have responded
+     */
     public boolean AllClientsResponded() {
         for (ClientHandler client :
                 Clients) {
@@ -161,10 +190,18 @@ public class JahootServer implements IJahootServer {
         return true;
     }
 
+    /**
+     * Returns the map of clients and their scores
+     * @return Map of clients and scores
+     */
     public Map<ClientHandler, Integer> getClientScores() {
         return ClientScores;
     }
 
+    /**
+     * Iterates through each ClientHandler to see if all ClientHandlers are finished with the current game
+     * @return True if game is finished
+     */
     public boolean isClientsStillPlaying() {
         for (ClientHandler client : Clients) {
             if (!client.isFinishedPlaying()) {
@@ -174,6 +211,11 @@ public class JahootServer implements IJahootServer {
         return false;
     }
 
+    /**
+     * Converts a map of ClientHandlers and Integers to a list of Strings and Integers so that it can be transmitted over a socket.
+     * @param clients ClientHandler - Integer map
+     * @return String - Integer map
+     */
     public synchronized Map<String, Integer> convertClientHandlerMapToStringMap(Map<ClientHandler, Integer> clients) {
         Map<String, Integer> StringScores = new HashMap<>();
         for (ClientHandler client :

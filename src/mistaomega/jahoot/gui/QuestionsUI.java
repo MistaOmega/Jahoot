@@ -7,6 +7,13 @@ import javax.swing.*;
 import java.io.File;
 import java.util.ArrayList;
 
+/**
+ * This is the controller for the Question form.
+ * It is responsible for handling the creation and management of question banks
+ *
+ * @author Jack Nash
+ * @version 1.0
+ */
 public class QuestionsUI extends UserInterfaceControllerClass {
     private ArrayList<Question> Questions = new ArrayList<>();
     private JPanel mainPanel;

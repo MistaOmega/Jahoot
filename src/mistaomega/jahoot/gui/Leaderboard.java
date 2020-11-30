@@ -8,10 +8,18 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * This is the leaderboard class
+ * It is the controller for the Leaderboard form
+ * It is responsible for displaying the latest scores to the users
+ */
 public class Leaderboard extends UserInterfaceControllerClass {
     private JList<String> scoresList;
     private JPanel mainPanel;
 
+    /**
+     * Constructor
+     */
     public Leaderboard() {
         super(new JFrame("Leaderboard"));
     }

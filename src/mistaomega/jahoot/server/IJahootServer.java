@@ -10,6 +10,11 @@ import java.net.ServerSocket;
  * @version 0.1
  */
 public interface IJahootServer {
+    /**
+     * Opens a server instance
+     * @param port port to open
+     * @return An instance of the open server socket
+     */
     default ServerSocket openServerConnections(int port) {
         ServerSocket serverSocket;
         try {

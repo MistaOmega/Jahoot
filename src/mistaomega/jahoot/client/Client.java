@@ -11,6 +11,10 @@ import java.net.Socket;
 import java.util.Timer;
 import java.util.*;
 
+/**
+ * This is the main client class
+ * All things to do with data transmission with the ClientHandler is done here.
+ */
 public class Client implements iClient {
     private final String hostname;
     private final int port;
@@ -26,6 +30,14 @@ public class Client implements iClient {
     private volatile boolean questionAnswered;
     private volatile int givenAnswerIndex;
 
+    /**
+     * Default constructor
+     *
+     * @param hostname        Hostname to connect to
+     * @param port            Port to connect through
+     * @param Username        Chosen username for the client
+     * @param clientConnectUI Instance of the connect UI
+     */
     public Client(String hostname, int port, String Username, ClientConnectUI clientConnectUI) {
         this.hostname = hostname;
         this.port = port;
@@ -37,7 +49,7 @@ public class Client implements iClient {
     }
 
     /**
-     * This is the entry function for the client and is reponsible for the following:
+     * This is the entry function for the client and is responsible for the following:
      * Connect to the client handler through a socket
      * send client username to server and await response
      * wait for game start to be called

@@ -9,6 +9,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+/**
+ * This is the gameplay UI
+ * The user will select a button within the allotted time
+ * This controller will send the answer selected back to the client class, which then processes the response
+ *
+ * @author Jack Nash
+ * @version 1.0
+ */
 public class ClientMainUI extends UserInterfaceControllerClass {
     private final Client client;
     private ArrayList<String> colorList;
@@ -18,7 +26,6 @@ public class ClientMainUI extends UserInterfaceControllerClass {
     private JPanel answerPane2;
     private JPanel answerPane3;
     private JPanel answerPane4;
-    private JTextField tfTitle;
     private JTextField tfQuestion;
     private JButton btnAnswer2;
     private JButton btnAnswer1;
@@ -26,13 +33,16 @@ public class ClientMainUI extends UserInterfaceControllerClass {
     private JButton btnAnswer4;
     private JTextField tfTimeLeft;
 
+    /**
+     * constructor
+     *
+     * @param client Instance of the Client
+     */
     public ClientMainUI(Client client) {
         super(new JFrame("Game Interface"));
         this.client = client;
         initListeners();
-        btnAnswer1.addActionListener(e -> {
-            client.answerQuestion(0);
-        });
+        btnAnswer1.addActionListener(e -> client.answerQuestion(0));
     }
 
     /**
@@ -45,6 +55,9 @@ public class ClientMainUI extends UserInterfaceControllerClass {
         btnAnswer4.addActionListener(e -> client.answerQuestion(3));
     }
 
+    /**
+     * Entry function
+     */
     public void run() {
         frame.setContentPane(mainPanel);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -53,6 +66,9 @@ public class ClientMainUI extends UserInterfaceControllerClass {
         frame.setVisible(true);
     }
 
+    /**
+     * Randomly sets the button panel colours
+     */
     public void setPanelColors() {
         Random rnd = new Random();
         for (JPanel panel : panels) {
@@ -62,6 +78,11 @@ public class ClientMainUI extends UserInterfaceControllerClass {
         }
     }
 
+    /**
+     * Adds information to the question buttons
+     * @param questionTitle Title of the Question
+     * @param answers List of answers to the question
+     */
     public void addQuestion(String questionTitle, List<String> answers) {
         SwingUtilities.invokeLater(() -> {
             tfQuestion.setText(questionTitle);
@@ -73,6 +94,11 @@ public class ClientMainUI extends UserInterfaceControllerClass {
 
     }
 
+    /**
+     * Sets remaining time left
+     *
+     * @param timeLeft How much time is left
+     */
     public void setTfTimeLeft(String timeLeft) {
         tfTimeLeft.setText("Time left: " + timeLeft);
     }
