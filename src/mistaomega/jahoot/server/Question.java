@@ -18,24 +18,12 @@ public class Question implements Serializable {
         return Correct;
     }
 
-    public void setCorrect(int correct) {
-        Correct = correct;
-    }
-
     public String getQuestionName() {
         return QuestionName;
     }
 
-    public void setQuestionName(String questionName) {
-        QuestionName = questionName;
-    }
-
     public String[] getQuestionChoices() {
         return QuestionChoices;
-    }
-
-    public void setQuestionChoices(String[] questionChoices) {
-        QuestionChoices = questionChoices;
     }
 
 

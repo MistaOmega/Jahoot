@@ -32,7 +32,13 @@ public class Leaderboard extends UserInterfaceControllerClass {
         scoresList.setBackground(Color.decode(JahootColors.JAHOOTBLUE.getHex()));
     }
 
-    public void displayLatestScores(Map<String, Integer> clientScores, boolean winning) {
+    /**
+     * This sets the latest scores on the leaderboards
+     * @param clientScores map of all client scores and their linked user
+     * @param winning if the game is over
+     * @return a string of the winners if the game is over
+     */
+    public String displayLatestScores(Map<String, Integer> clientScores, boolean winning) {
         if (scoresList.getModel().getSize() == 0) {
             DefaultListModel<String> listModel = new DefaultListModel<>();
             scoresList.setModel(listModel);
@@ -66,9 +72,9 @@ public class Leaderboard extends UserInterfaceControllerClass {
                     CommonUtils.findKeyFromValue(clientScores, highScore)) {
                winners.append(user.toString()).append(" ");
             }
-
-            JOptionPane.showMessageDialog(mainPanel, "Winners are: "+ winners.toString(), "Game over!", JOptionPane.INFORMATION_MESSAGE);
+            return winners.toString();
         }
+        return null;
     }
 
 }

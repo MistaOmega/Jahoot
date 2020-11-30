@@ -120,6 +120,9 @@ public class ServerGUI extends UserInterfaceControllerClass {
         }
         DefaultListModel<ClientHandler> defaultListModel = (DefaultListModel<ClientHandler>) lstUsers.getModel(); // Need to cast to a parameterised version of the DefaultListModel to add later
         defaultListModel.addElement(client);
+        if(!btnReady.isEnabled()){
+            btnReady.setEnabled(true);
+        }
     }
 
     /**
@@ -130,12 +133,18 @@ public class ServerGUI extends UserInterfaceControllerClass {
     public void removeFromUsers(ClientHandler client) {
         DefaultListModel<ClientHandler> defaultListModel = (DefaultListModel<ClientHandler>) lstUsers.getModel(); // Need to cast to a parameterised version of the DefaultListModel to add later
         defaultListModel.removeElement(client);
+        if(defaultListModel.isEmpty()){
+            btnReady.setEnabled(false);
+        }
 
     }
 
     public void clearAllClients() {
         DefaultListModel<ClientHandler> defaultListModel = (DefaultListModel<ClientHandler>) lstUsers.getModel(); // Need to cast to a parameterised version of the DefaultListModel to add later
         defaultListModel.removeAllElements();
+        if(defaultListModel.isEmpty()){
+            btnReady.setEnabled(false);
+        }
     }
 
 }

@@ -119,14 +119,15 @@ public class Client implements iClient {
             clientMainUI.hide();
             // Run if the game is finished (last question has just been answered)
             if (in.readBoolean()) {
-                leaderboard.displayLatestScores(clientScores, true);
+                String winners = leaderboard.displayLatestScores(clientScores, true);
                 leaderboard.show();
                 Thread.sleep(5000);
                 leaderboard.hide();
 
                 clientConnectUI.show();
+                clientConnectUI.setConsoleOutput("Winners are: " + winners + " Thanks for playing!");
                 clientConnectUI.setConsoleOutput("Game complete, shutting down client, you may reconnect using the connect UI when ready!");
-                clientConnectUI.getBtnConnect().setVisible(true);
+                clientConnectUI.getBtnConnect().setEnabled(true);
                 throw new IOException("Game complete, shutting down client, you may reconnect using the connect UI when ready!");
 
             } else { // this runs for all other answers

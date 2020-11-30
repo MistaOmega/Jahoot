@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -31,12 +30,13 @@ public class ClientHandler implements Runnable {
 
     /**
      * default constructor
-     * @param socket client side socket
+     *
+     * @param socket       client side socket
      * @param jahootServer reference to the main server
-     * @param in input stream for data
-     * @param out output stream for data
-     * @param objectOut output stream for handling serializable objects
-     * @param questions the arraylist of questions that will be iterated through
+     * @param in           input stream for data
+     * @param out          output stream for data
+     * @param objectOut    output stream for handling serializable objects
+     * @param questions    the arraylist of questions that will be iterated through
      */
     public ClientHandler(Socket socket, JahootServer jahootServer, DataInputStream in, DataOutputStream out, ObjectOutputStream objectOut, ArrayList<Question> questions) {
         this.questions = questions;
