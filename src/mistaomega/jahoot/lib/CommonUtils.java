@@ -18,12 +18,12 @@ public class CommonUtils {
 
     /**
      * Serializes given question array to file
-     * @param questions Array of questions
-     * @param filename Given filename
+     *  @param questions Array of questions
+     * @param path  Given path
      */
-    public static void SerializeQuestion(ArrayList<Question> questions, String filename) {
+    public static void SerializeQuestion(ArrayList<Question> questions, File path) {
         try {
-            FileOutputStream fileOutputStream = new FileOutputStream(filename);
+            FileOutputStream fileOutputStream = new FileOutputStream(path);
             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(bufferedOutputStream);
             objectOutputStream.writeObject(questions);
@@ -35,6 +35,7 @@ public class CommonUtils {
 
     /**
      * Deserializes question array from file
+     *
      * @param file file to deserialize
      * @return ArrayList of Questions gathered from file
      */
@@ -70,7 +71,7 @@ public class CommonUtils {
         return keys;
     }
 
-    public static File[] getQuestionBanks(String directory){
+    public static File[] getQuestionBanks(String directory) {
         File f = new File(directory);
         FilenameFilter textFilter = (dir, name) -> name.toLowerCase().endsWith(".qbk");
 

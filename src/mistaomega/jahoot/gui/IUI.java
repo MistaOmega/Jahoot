@@ -2,6 +2,7 @@ package mistaomega.jahoot.gui;
 
 /**
  * Interface for the UserInterfaceControllerClass
+ *
  * @author Jack Nash
  * @version 1.0
  */

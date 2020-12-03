@@ -12,6 +12,7 @@ import java.net.ServerSocket;
 public interface IJahootServer {
     /**
      * Opens a server instance
+     *
      * @param port port to open
      * @return An instance of the open server socket
      */

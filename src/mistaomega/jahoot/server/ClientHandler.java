@@ -121,6 +121,7 @@ public class ClientHandler implements Runnable {
 
     /**
      * Checks for requests
+     *
      * @return If the game is ready to start
      * @throws IOException Throws if there is an error in sending or reading from data streams
      */
@@ -157,7 +158,6 @@ public class ClientHandler implements Runnable {
     }
 
     /**
-     *
      * @return if the game is ready to begin
      */
     public boolean isReadyToPlay() {
@@ -166,6 +166,7 @@ public class ClientHandler implements Runnable {
 
     /**
      * Sets the game ready to play
+     *
      * @param readyToPlay true if game is ready
      */
     public void setReadyToPlay(boolean readyToPlay) {
@@ -173,7 +174,6 @@ public class ClientHandler implements Runnable {
     }
 
     /**
-     *
      * @return Username
      */
     public String getUsername() {
@@ -189,7 +189,6 @@ public class ClientHandler implements Runnable {
     }
 
     /**
-     *
      * @return True if the game is over
      */
     public boolean isFinishedPlaying() {
@@ -197,7 +196,6 @@ public class ClientHandler implements Runnable {
     }
 
     /**
-     *
      * @return True if the client has responded
      */
     public boolean isQuestionResponded() {

@@ -4,6 +4,7 @@ import java.util.List;
 
 /**
  * Client Interface, for expansion purposes
+ *
  * @author Jack Nash
  * @version 1.0
  */

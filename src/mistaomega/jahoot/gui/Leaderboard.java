@@ -42,8 +42,9 @@ public class Leaderboard extends UserInterfaceControllerClass {
 
     /**
      * This sets the latest scores on the leaderboards
+     *
      * @param clientScores map of all client scores and their linked user
-     * @param winning if the game is over
+     * @param winning      if the game is over
      * @return a string of the winners if the game is over
      */
     public String displayLatestScores(Map<String, Integer> clientScores, boolean winning) {
@@ -78,7 +79,7 @@ public class Leaderboard extends UserInterfaceControllerClass {
             StringBuilder winners = new StringBuilder();
             for (Object user :
                     CommonUtils.findKeyFromValue(clientScores, highScore)) {
-               winners.append(user.toString()).append(" ");
+                winners.append(user.toString()).append(" ");
             }
             return winners.toString();
         }

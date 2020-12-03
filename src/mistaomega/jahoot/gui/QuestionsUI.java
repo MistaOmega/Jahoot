@@ -1,6 +1,7 @@
 package mistaomega.jahoot.gui;
 
 import mistaomega.jahoot.lib.CommonUtils;
+import mistaomega.jahoot.lib.Config;
 import mistaomega.jahoot.server.Question;
 
 import javax.swing.*;
@@ -30,9 +31,11 @@ public class QuestionsUI extends UserInterfaceControllerClass {
     private JComboBox<File> existingBankBox;
     private JCheckBox editMode;
     private JButton btnDeleteList;
+    private Config config;
 
     public QuestionsUI() {
         super(new JFrame("Questions Interface"));
+        config = Config.getInstance();
         initListeners();
 
         btnDeleteList.addActionListener(e -> deleteItem());
@@ -100,7 +103,7 @@ public class QuestionsUI extends UserInterfaceControllerClass {
 
     }
 
-    private void setupEditMode(){
+    private void setupEditMode() {
         if (editMode.isSelected()) {
             existingBankBox.setEnabled(true);
             if (existingBankBox.getItemAt(0) == null || existingBankBox.getSelectedItem() == null) {
@@ -126,6 +129,7 @@ public class QuestionsUI extends UserInterfaceControllerClass {
             clearFields();
         }
     }
+
     private void clearFields() {
         tfQuestionTitle.setText("");
         tfAns1.setText("");
@@ -154,16 +158,36 @@ public class QuestionsUI extends UserInterfaceControllerClass {
             JOptionPane.showMessageDialog(mainPanel, "You're missing a question bank title", "No title", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        String filePath = "";
+        if(config != null && config.containsKey("jahoot.questionPath")){
+            filePath = config.getProperty("jahoot.questionPath");
+        }
+        File directory = new File(System.getProperty("user.dir") + filePath);
+        if (! directory.exists()){
+            if(!directory.mkdirs()){
+                JOptionPane.showMessageDialog(mainPanel, "Error in making question bank directory. You shouldn't be seeing this, try making the folder yourself\n" +
+                        "default is \\Questions", "Cannot make directory", JOptionPane.ERROR_MESSAGE);
+                return;
+            };
+            // If you require it to make the entire directory path including parents,
+            // use directory.mkdirs(); here instead.
+        }
 
-        CommonUtils.SerializeQuestion(Questions, tfQuestionBankTitle.getText() + ".qbk");
+        File file = new File(System.getProperty("user.dir") + filePath + "/" + tfQuestionBankTitle.getText() + ".qbk");
+        CommonUtils.SerializeQuestion(Questions, file);
+
         JOptionPane.showMessageDialog(mainPanel, "Question bank processed, please proceed to run the server when ready.", "Success!", JOptionPane.INFORMATION_MESSAGE);
         getExistingBanks();
     }
 
     private void getExistingBanks() {
+        String filePath = "";
+        if(config != null && config.containsKey("jahoot.questionPath")){
+            filePath = config.getProperty("jahoot.questionPath");
+        }
         existingBankBox.removeAllItems();
-        File[] files = CommonUtils.getQuestionBanks(new File("").getAbsolutePath()); // get current working directory, should make sure I can get question banks!
-        if (files.length == 0) {
+        File[] files = CommonUtils.getQuestionBanks(new File(System.getProperty("user.dir") + filePath).getAbsolutePath()); // get current working directory, should make sure I can get question banks!
+        if (files == null || files.length == 0) {
             return;
         }
         if (existingBankBox.getModel().getSize() == 0) {

@@ -16,10 +16,11 @@ import java.util.concurrent.Executors;
  * This class was written with the help of the following resource:
  * http://tutorials.jenkov.com/java-multithreaded-servers/thread-pooled-server.html
  * Code was not used in verbatim, more used to help guide me in the right direction
- *
+ * <p>
  * This code is for the primary server, this server is responsible for handling connection requests
  * and for storing instances of each ClientHandler for later use.
  * It, as the central system is also responsible for broadcasting changes in state, such as the game starting
+ *
  * @author Jack Nash
  * @version 1.0
  */
@@ -131,8 +132,9 @@ public class JahootServer implements IJahootServer {
 
     /**
      * Removes a user
+     *
      * @param Username Username to remove
-     * @param client ClientHandler instance to remove
+     * @param client   ClientHandler instance to remove
      */
     @Override
     public void removeUser(String Username, ClientHandler client) {
@@ -157,7 +159,6 @@ public class JahootServer implements IJahootServer {
     }
 
     /**
-     *
      * @param clientHandler ClientHandler to get the score from
      * @return score linked to ClientHandler
      */
@@ -167,8 +168,9 @@ public class JahootServer implements IJahootServer {
 
     /**
      * Sets new score for the client
+     *
      * @param clientHandler ClientHandler instance to change score of
-     * @param newTotal New score
+     * @param newTotal      New score
      */
     public void setNewClientScore(ClientHandler clientHandler, int newTotal) {
         ClientScores.remove(clientHandler);
@@ -177,6 +179,7 @@ public class JahootServer implements IJahootServer {
 
     /**
      * Iterates through each ClientHandler to see if the question has been responded to
+     *
      * @return true if all clients have responded
      */
     public boolean AllClientsResponded() {
@@ -192,6 +195,7 @@ public class JahootServer implements IJahootServer {
 
     /**
      * Returns the map of clients and their scores
+     *
      * @return Map of clients and scores
      */
     public Map<ClientHandler, Integer> getClientScores() {
@@ -200,6 +204,7 @@ public class JahootServer implements IJahootServer {
 
     /**
      * Iterates through each ClientHandler to see if all ClientHandlers are finished with the current game
+     *
      * @return True if game is finished
      */
     public boolean isClientsStillPlaying() {
@@ -213,6 +218,7 @@ public class JahootServer implements IJahootServer {
 
     /**
      * Converts a map of ClientHandlers and Integers to a list of Strings and Integers so that it can be transmitted over a socket.
+     *
      * @param clients ClientHandler - Integer map
      * @return String - Integer map
      */

@@ -19,7 +19,6 @@ public enum JahootColors {
     }
 
     /**
-     *
      * @return hex value attached to enum
      */
     public String getHex() {

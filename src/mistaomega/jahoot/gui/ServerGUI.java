@@ -1,6 +1,7 @@
 package mistaomega.jahoot.gui;
 
 import mistaomega.jahoot.lib.CommonUtils;
+import mistaomega.jahoot.lib.Config;
 import mistaomega.jahoot.server.ClientHandler;
 import mistaomega.jahoot.server.JahootServer;
 import mistaomega.jahoot.server.Question;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 /**
  * This is the controller for the ServerGUI form
  * It is responsible for handling the creation of server instances.
+ *
  * @author Jack Nash
  * @version 1.0
  */
@@ -24,9 +26,11 @@ public class ServerGUI extends UserInterfaceControllerClass {
     private JButton btnStartServer;
     private JButton btnRemoveUser;
     private JButton btnExit;
+    private final Config config;
 
     public ServerGUI() {
         super(new JFrame("Server GUI"));
+        config = Config.getInstance();
         initListeners();
 
     }
@@ -65,9 +69,15 @@ public class ServerGUI extends UserInterfaceControllerClass {
     }
 
 
+    /**
+     * This function is responsible for selecting a question bank and a port in order to start up the server.
+     */
     public void beginConnectionHandle() {
-
-        String directory = new File("").getAbsolutePath(); // get current working directory, should make sure I can get question banks!
+        String filePath = "";
+        if(config != null && config.containsKey("jahoot.questionPath")){
+            filePath = config.getProperty("jahoot.questionPath");
+        }
+        String directory = new File(System.getProperty("user.dir") + filePath).getAbsolutePath(); // get current working directory, should make sure I can get question banks!
         File f = new File(directory);
         FilenameFilter textFilter = (dir, name) -> name.toLowerCase().endsWith(".qbk");
         File[] files = f.listFiles(textFilter);
@@ -126,7 +136,7 @@ public class ServerGUI extends UserInterfaceControllerClass {
         }
         DefaultListModel<ClientHandler> defaultListModel = (DefaultListModel<ClientHandler>) lstUsers.getModel(); // Need to cast to a parameterised version of the DefaultListModel to add later
         defaultListModel.addElement(client);
-        if(!btnReady.isEnabled()){
+        if (!btnReady.isEnabled()) {
             btnReady.setEnabled(true);
         }
     }
@@ -139,7 +149,7 @@ public class ServerGUI extends UserInterfaceControllerClass {
     public void removeFromUsers(ClientHandler client) {
         DefaultListModel<ClientHandler> defaultListModel = (DefaultListModel<ClientHandler>) lstUsers.getModel(); // Need to cast to a parameterised version of the DefaultListModel to add later
         defaultListModel.removeElement(client);
-        if(defaultListModel.isEmpty()){
+        if (defaultListModel.isEmpty()) {
             btnReady.setEnabled(false);
         }
 
@@ -148,7 +158,7 @@ public class ServerGUI extends UserInterfaceControllerClass {
     public void clearAllClients() {
         DefaultListModel<ClientHandler> defaultListModel = (DefaultListModel<ClientHandler>) lstUsers.getModel(); // Need to cast to a parameterised version of the DefaultListModel to add later
         defaultListModel.removeAllElements();
-        if(defaultListModel.isEmpty()){
+        if (defaultListModel.isEmpty()) {
             btnReady.setEnabled(false);
         }
     }

@@ -1,6 +1,7 @@
 package mistaomega.jahoot.gui;
 
 import mistaomega.jahoot.client.Client;
+import mistaomega.jahoot.lib.Config;
 
 import javax.swing.*;
 import java.awt.event.FocusAdapter;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 /**
  * This class is the controller class for the ClientConnectUI Form
  * This is what the user uses to choose what server to connect to
+ *
  * @author Jack Nash
  * @version 1.0
  */
@@ -29,9 +31,21 @@ public class ClientConnectUI extends UserInterfaceControllerClass {
      */
     public ClientConnectUI() {
         super(new JFrame("Connect GUI"));
-        tfHostnameDefault = tfHostname.getText();
-        tfPortDefault = tfPort.getText();
-        tfUsernameDefault = tfUsername.getText();
+
+        Config config = Config.getInstance();
+        if(config != null && config.containsKey("jahoot.host") && config.containsKey("jahoot.port") && config.containsKey("jahoot.username")) {
+            tfHostname.setText(config.getProperty("jahoot.host"));
+            tfPort.setText(config.getProperty("jahoot.port"));
+            tfUsername.setText(config.getProperty("jahoot.username"));
+            tfHostnameDefault = tfHostname.getText();
+            tfPortDefault = tfPort.getText();
+            tfUsernameDefault = tfUsername.getText();
+        }
+        else{
+            tfHostnameDefault = "";
+            tfPortDefault = "";
+            tfUsernameDefault = "";
+        }
 
         initListeners();
     }
@@ -123,6 +137,7 @@ public class ClientConnectUI extends UserInterfaceControllerClass {
 
     /**
      * Adds the given string to the console output
+     *
      * @param message message to add to console output
      */
     public void setConsoleOutput(String message) {

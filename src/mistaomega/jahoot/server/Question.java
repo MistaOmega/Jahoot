@@ -16,9 +16,10 @@ public class Question implements Serializable {
 
     /**
      * Constructor
-     * @param questionName Name of the question
+     *
+     * @param questionName    Name of the question
      * @param questionChoices Possible choices for the question
-     * @param correct Index of the correct answer
+     * @param correct         Index of the correct answer
      */
     public Question(String questionName, String[] questionChoices, int correct) {
         this.QuestionName = questionName;

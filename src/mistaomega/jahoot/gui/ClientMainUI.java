@@ -80,8 +80,9 @@ public class ClientMainUI extends UserInterfaceControllerClass {
 
     /**
      * Adds information to the question buttons
+     *
      * @param questionTitle Title of the Question
-     * @param answers List of answers to the question
+     * @param answers       List of answers to the question
      */
     public void addQuestion(String questionTitle, List<String> answers) {
         SwingUtilities.invokeLater(() -> {
